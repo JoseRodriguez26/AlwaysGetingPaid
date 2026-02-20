@@ -1,0 +1,3 @@
+{
+  "/api/webhooks/ccbill/route": "app/api/webhooks/ccbill/route.js"
+}

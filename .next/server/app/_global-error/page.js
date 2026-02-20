@@ -1,0 +1,10 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_global-error/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__f22b2200._.js")
+R.c("server/chunks/ssr/4eb39_next_dist_c4e6e5c7._.js")
+R.c("server/chunks/ssr/4eb39_next_dist_f8a0ffd0._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__6e19307b._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__52d47139._.js")
+R.c("server/chunks/ssr/4eb39_next_dist_0e8f0d0a._.js")
+R.c("server/chunks/ssr/AlwaysGetingPaid__next-internal_server_app__global-error_page_actions_f3f31e90.js")
+R.m(70140)
+module.exports=R.m(70140).exports
