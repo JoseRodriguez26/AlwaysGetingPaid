@@ -19,7 +19,7 @@ export default function AboutPage() {
         <div className="relative z-10 text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-6">
             <Flame className="w-4 h-4 text-gold" />
-            <span className="section-eyebrow text-xs">Caliente Hub XXX LLC</span>
+            <span className="section-eyebrow text-xs">Caliente Hub Media LLC (DBA Caliente Hub XXX)</span>
           </div>
           <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-6">
             The Story Behind{" "}

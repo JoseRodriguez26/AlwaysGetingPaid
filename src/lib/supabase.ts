@@ -44,3 +44,13 @@ export interface Purchase {
   payment_ref: string;
   purchased_at: string;
 }
+
+export interface UserAccess {
+  id: string;
+  user_id: string;
+  is_active: boolean;
+  payment_reference?: string;
+  notes?: string;
+  granted_at: string;
+  expires_at?: string;
+}

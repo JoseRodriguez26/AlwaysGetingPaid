@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import ContentCard, { type ContentItem } from "./ContentCard";
 import { Filter } from "lucide-react";
 
@@ -14,18 +13,56 @@ const SAMPLE_CONTENT: ContentItem[] = [
   { id: "p3", title: "Smoke & Silk — Art Series", type: "photo", thumbnail: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&q=80", locked: false, likes: 2300, views: 11200, tier: "fan" },
   { id: "v4", title: "VIP Night — Extended Cut", type: "video", thumbnail: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80", duration: "32:20", locked: true, tier: "elite", likes: 7100, views: 52000 },
   { id: "p4", title: "Lingerie Lookbook — Vol. 3", type: "photo", thumbnail: "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=800&q=80", locked: false, likes: 4800, views: 28000, tier: "vip" },
-  { id: "v5", title: "Raw & Uncut — Fan Request", type: "video", thumbnail: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80", duration: "9:55", locked: false, likes: 1600, views: 8900, price: 7.99 },
-  { id: "p5", title: "Boudoir Diaries — Chapter 2", type: "photo", thumbnail: "https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=800&q=80", locked: true, tier: "elite", likes: 3900, views: 24000 },
-  { id: "v6", title: "Weekend in Paradise", type: "video", thumbnail: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800&q=80", duration: "21:00", locked: false, tier: "fan", likes: 2200, views: 13500 },
-  { id: "p6", title: "Studio Session — Gold Edition", type: "photo", thumbnail: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=800&q=80", locked: true, price: 9.99, likes: 2800, views: 17000 },
 ];
 
 type FilterType = "all" | "video" | "photo" | "free";
 
+function mapToContentItem(c: {
+  id: string;
+  title: string;
+  type: "video" | "photo";
+  thumbnail_url: string;
+  duration?: string;
+  tier_required?: string | null;
+  price?: number | null;
+  is_free_preview: boolean;
+  views: number;
+  likes: number;
+}): ContentItem {
+  return {
+    id: c.id,
+    title: c.title,
+    type: c.type,
+    thumbnail: c.thumbnail_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
+    duration: c.duration,
+    tier: (c.tier_required as ContentItem["tier"]) ?? undefined,
+    price: c.price ?? undefined,
+    locked: !c.is_free_preview && !!c.tier_required,
+    views: c.views,
+    likes: c.likes,
+  };
+}
+
 export default function ContentGrid() {
   const [filter, setFilter] = useState<FilterType>("all");
+  const [items, setItems] = useState<ContentItem[]>(SAMPLE_CONTENT);
 
-  const filtered = SAMPLE_CONTENT.filter((item) => {
+  useEffect(() => {
+    async function fetchContent() {
+      try {
+        const res = await fetch("/api/content");
+        const json = await res.json();
+        if (json.content && json.content.length > 0) {
+          setItems(json.content.map(mapToContentItem));
+        }
+      } catch {
+        // Keep showing sample data on error
+      }
+    }
+    fetchContent();
+  }, []);
+
+  const filtered = items.filter((item) => {
     if (filter === "video") return item.type === "video";
     if (filter === "photo") return item.type === "photo";
     if (filter === "free") return !item.locked;
@@ -79,12 +116,20 @@ export default function ContentGrid() {
           ))}
         </div>
 
+        {filtered.length === 0 && (
+          <div className="text-center py-24">
+            <p className="text-white/30 text-sm">No content found for this filter.</p>
+          </div>
+        )}
+
         {/* Load more */}
-        <div className="text-center mt-12">
-          <button className="btn-outline-gold text-xs py-3 px-10">
-            Load More
-          </button>
-        </div>
+        {filtered.length > 0 && (
+          <div className="text-center mt-12">
+            <button className="btn-outline-gold text-xs py-3 px-10">
+              Load More
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

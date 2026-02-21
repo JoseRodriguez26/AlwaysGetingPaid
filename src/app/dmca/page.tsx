@@ -8,7 +8,7 @@ export default function DMCAPage() {
         <p className="text-white/30 text-sm mb-10">Digital Millennium Copyright Act</p>
         <div className="space-y-6 text-white/50 text-sm leading-loose">
           <p>
-            Caliente Hub XXX LLC respects intellectual property rights and expects users to do the same.
+            Caliente Hub Media LLC (DBA Caliente Hub XXX) respects intellectual property rights and expects users to do the same.
             We respond to notices of alleged copyright infringement in accordance with the DMCA.
           </p>
           <p>
@@ -16,7 +16,7 @@ export default function DMCAPage() {
             notice to our designated agent at:
           </p>
           <div className="glass border border-gold/10 rounded-sm p-6">
-            <p className="text-white/70 font-medium mb-1">DMCA Agent — Caliente Hub XXX LLC</p>
+            <p className="text-white/70 font-medium mb-1">DMCA Agent — Caliente Hub Media LLC (DBA Caliente Hub XXX)</p>
             <p>dmca@calientehubxxx.com</p>
           </div>
           <p>Your notice must include: identification of the copyrighted work, identification of the allegedly infringing material, your contact information, a statement of good faith belief, and your signature.</p>

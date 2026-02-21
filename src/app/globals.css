@@ -146,3 +146,21 @@ body {
   animation: particleDrift var(--duration, 8s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
 }
+
+/* Stream-only video protection */
+.stream-container {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.stream-container video::-webkit-media-controls-download-button {
+  display: none !important;
+}
+
+.stream-container video::-webkit-media-controls-overflow-button {
+  display: none !important;
+}

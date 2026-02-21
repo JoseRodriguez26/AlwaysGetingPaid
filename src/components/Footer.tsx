@@ -20,7 +20,7 @@ export default function Footer() {
             </Link>
             <p className="text-white/40 text-sm leading-relaxed">
               Premium exclusive content. Authentic. Bold. Unapologetic.
-              <br />LLC Media Company.
+              <br />Caliente Hub Media LLC (DBA Caliente Hub XXX)
             </p>
           </div>
 
@@ -31,7 +31,7 @@ export default function Footer() {
               {[
                 { label: "Home", href: "/" },
                 { label: "Content", href: "/content" },
-                { label: "Subscribe", href: "/subscribe" },
+                { label: "Get Access", href: "/subscribe" },
                 { label: "About", href: "/about" },
               ].map((l) => (
                 <li key={l.href}>
@@ -67,7 +67,7 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/30 text-xs">
-            © {new Date().getFullYear()} Caliente Hub XXX LLC. All rights reserved.
+            © {new Date().getFullYear()} Caliente Hub Media LLC. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
             <div className="px-3 py-1 border border-red-500/40 rounded text-red-400/80 text-xs font-bold tracking-widest">

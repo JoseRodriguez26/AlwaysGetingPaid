@@ -18,9 +18,8 @@ export default function CompliancePage() {
             Records required by 18 U.S.C. § 2257 and 28 C.F.R. 75 are kept by the Custodian of Records at:
           </p>
           <div className="glass border border-gold/10 rounded-sm p-6">
-            <p className="text-white/70 font-medium mb-1">Caliente Hub XXX LLC</p>
+            <p className="text-white/70 font-medium mb-1">Caliente Hub Media LLC (DBA Caliente Hub XXX)</p>
             <p>Custodian of Records</p>
-            <p>[Address — insert your business address]</p>
             <p>contact@calientehubxxx.com</p>
           </div>
           <p>
