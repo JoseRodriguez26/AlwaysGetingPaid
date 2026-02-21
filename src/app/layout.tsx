@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AgeGate from "@/components/AgeGate";
+import MexicanFlag from "@/components/MexicanFlag";
 
 export const metadata: Metadata = {
   title: "Caliente Hub XXX — Exclusive Premium Content",
@@ -26,6 +28,8 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background text-white antialiased">
+        <MexicanFlag />
+        <AgeGate />
         <Navbar />
         <main>{children}</main>
         <Footer />
