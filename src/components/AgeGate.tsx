@@ -1,87 +1,47 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Flame, ShieldAlert } from "lucide-react";
 
 export default function AgeGate() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const verified = sessionStorage.getItem("age_verified");
-    if (!verified) setShow(true);
+    if (!sessionStorage.getItem("age_verified")) {
+      setShow(true);
+    }
   }, []);
-
-  const handleEnter = () => {
-    sessionStorage.setItem("age_verified", "true");
-    setShow(false);
-  };
-
-  const handleExit = () => {
-    window.location.href = "https://www.google.com";
-  };
 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-6"
-      style={{ background: "rgba(8,8,8,0.97)", backdropFilter: "blur(20px)" }}
-    >
-      {/* Subtle glow */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse at center, rgba(107,33,168,0.15) 0%, transparent 70%)",
-        }}
-      />
-
-      <div className="relative z-10 max-w-md w-full text-center">
-        {/* Icon */}
-        <div className="w-16 h-16 rounded-sm bg-gold-gradient flex items-center justify-center mx-auto mb-6 gold-glow">
-          <Flame className="w-8 h-8 text-background" />
-        </div>
-
-        {/* Brand */}
-        <p className="font-display text-3xl font-bold text-white mb-1">
-          <span className="text-gold-gradient">Caliente</span> Hub
-          <span className="text-gold text-xl font-normal ml-2">XXX</span>
+    <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4">
+      <div className="card max-w-md w-full text-center space-y-6">
+        <h2 className="text-3xl font-display font-bold text-gold">Caliente Hub</h2>
+        <h3 className="text-xl text-white">Age Verification</h3>
+        <p className="text-gray-300">
+          This website contains adult content. You must be 18 years or older to enter.
         </p>
-
-        <div className="divider-gold my-5 max-w-[120px] mx-auto" />
-
-        {/* Warning */}
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <ShieldAlert className="w-4 h-4 text-gold/70" />
-          <p className="section-eyebrow text-[11px]">Adults Only — 18+</p>
-        </div>
-
-        <p className="text-white/50 text-sm leading-relaxed mb-8">
-          This website contains explicit adult content intended for adults
-          18 years of age or older. By entering you confirm that you are
-          at least <span className="text-white/80 font-medium">18 years old</span> and
-          agree to our{" "}
-          <a href="/terms" className="text-gold/70 hover:text-gold underline">
-            Terms of Service
-          </a>.
+        <p className="text-sm text-gray-500">
+          By entering, you confirm you are at least 18 years old and agree to our{" "}
+          <a href="/terms" className="text-gold hover:text-gold-light underline">Terms of Service</a>.
         </p>
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex gap-4 justify-center">
           <button
-            onClick={handleEnter}
-            className="btn-gold flex-1 py-4 text-sm"
+            onClick={() => {
+              sessionStorage.setItem("age_verified", "true");
+              setShow(false);
+            }}
+            className="btn-gold"
           >
-            I am 18 or older — Enter
+            I am 18+ Enter
           </button>
           <button
-            onClick={handleExit}
-            className="btn-outline-gold flex-1 py-4 text-sm"
+            onClick={() => (window.location.href = "https://google.com")}
+            className="btn-outline"
           >
-            I am under 18 — Exit
+            Exit
           </button>
         </div>
-
-        <p className="text-white/20 text-xs mt-6">
-          By entering you accept our privacy policy and cookie use.
-        </p>
       </div>
     </div>
   );

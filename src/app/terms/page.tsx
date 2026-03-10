@@ -1,37 +1,21 @@
-export const metadata = { title: "Terms of Service | Caliente Hub XXX" };
+export const metadata = { title: "Terms of Service | Caliente Hub" };
 
 export default function TermsPage() {
   return (
-    <div className="pt-24 min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="font-display text-4xl font-bold text-white mb-2">Terms of Service</h1>
-        <p className="text-white/30 text-sm mb-10">Last updated: {new Date().toLocaleDateString()}</p>
-        <div className="space-y-8 text-white/50 text-sm leading-loose">
-          <section>
-            <h2 className="font-display text-xl font-bold text-white mb-3">1. Age Requirement</h2>
-            <p>You must be at least 18 years of age to access this website. By accessing this site, you confirm you are 18 or older. If you are under 18, you must leave immediately.</p>
-          </section>
-          <div className="divider-gold" />
-          <section>
-            <h2 className="font-display text-xl font-bold text-white mb-3">2. Membership & Billing</h2>
-            <p>Memberships are billed on a recurring basis via CCBill or Segpay. You may cancel at any time. Refunds are handled per our refund policy. Your billing statement will show a discreet descriptor.</p>
-          </section>
-          <div className="divider-gold" />
-          <section>
-            <h2 className="font-display text-xl font-bold text-white mb-3">3. Content Policy</h2>
-            <p>All content on this platform features consenting adults 18 years of age or older at the time of production. All content is legally produced and compliant with 18 U.S.C. § 2257.</p>
-          </section>
-          <div className="divider-gold" />
-          <section>
-            <h2 className="font-display text-xl font-bold text-white mb-3">4. Prohibited Use</h2>
-            <p>You may not download, reproduce, redistribute, or share any content from this platform. Content is for personal viewing only. Violations will result in account termination and potential legal action.</p>
-          </section>
-          <div className="divider-gold" />
-          <section>
-            <h2 className="font-display text-xl font-bold text-white mb-3">5. Contact</h2>
-            <p>For any questions regarding these terms, contact us at legal@calientehubxxx.com</p>
-          </section>
-        </div>
+    <div className="max-w-3xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-display font-bold text-gold mb-8">Terms of Service</h1>
+      <div className="prose prose-invert prose-sm max-w-none space-y-6 text-gray-300">
+        <p>By accessing Caliente Hub, you agree to these terms.</p>
+        <h2 className="text-white text-lg font-semibold">Age Requirement</h2>
+        <p>You must be at least 18 years old to access this website. By using this site, you confirm you meet this age requirement.</p>
+        <h2 className="text-white text-lg font-semibold">Content & Purchases</h2>
+        <p>All content is for personal viewing only. No downloading, redistribution, or sharing is permitted. Purchases are per-video and non-refundable once access is granted.</p>
+        <h2 className="text-white text-lg font-semibold">Account</h2>
+        <p>You are responsible for maintaining the security of your account. Do not share your login credentials.</p>
+        <h2 className="text-white text-lg font-semibold">Prohibited Use</h2>
+        <p>You may not record, screenshot, download, or redistribute any content. Violation will result in immediate account termination.</p>
+        <h2 className="text-white text-lg font-semibold">Changes</h2>
+        <p>We reserve the right to modify these terms at any time. Continued use constitutes acceptance.</p>
       </div>
     </div>
   );

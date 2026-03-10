@@ -5,8 +5,8 @@ export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "placeholder",
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
@@ -25,12 +25,16 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session — keeps user logged in
-  const { data: { user } } = await supabase.auth.getUser();
+  // Refresh session
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Protect routes — redirect to sign-in if not logged in
-  const protectedPaths = ["/dashboard", "/content", "/video", "/photos"];
-  const isProtected = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p));
+  // Protected routes - only dashboard and watch require login
+  const protectedPaths = ["/dashboard", "/watch"];
+  const isProtected = protectedPaths.some((p) =>
+    request.nextUrl.pathname.startsWith(p)
+  );
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();

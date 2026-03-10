@@ -1,168 +1,79 @@
-"use client";
-
-import { Lock, Eye, Heart, Clock, ArrowLeft, DollarSign } from "lucide-react";
+import { createClient } from "@/lib/supabase-server";
+import VideoPlayer from "@/components/VideoPlayer";
 import Link from "next/link";
-import { useAccess } from "@/lib/useAccess";
-import StreamPlayer from "@/components/StreamPlayer";
-import { getCashAppLink, CASHAPP_CONFIG } from "@/lib/cashapp";
-import { useEffect, useState } from "react";
+import { notFound } from "next/navigation";
+import PurchaseSection from "./PurchaseSection";
 
-type VideoData = {
-  id: string;
-  title: string;
-  description: string;
-  duration?: string;
-  views: number;
-  likes: number;
-  storage_url: string;
-  thumbnail_url: string;
-  is_free_preview: boolean;
-};
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Mock fallback
-const mockVideo: VideoData = {
-  id: "v1",
-  title: "Exclusive — Behind the Scenes",
-  description:
-    "A raw, unfiltered look at the magic that happens behind closed doors. Exclusive access for members only.",
-  duration: "24:10",
-  views: 31000,
-  likes: 4200,
-  storage_url: "",
-  thumbnail_url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&q=80",
-  is_free_preview: false,
-};
+export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
-export default function VideoPage({ params }: { params: { id: string } }) {
-  const { hasAccess, loading: accessLoading } = useAccess();
-  const [video, setVideo] = useState<VideoData>(mockVideo);
+  if (!UUID_REGEX.test(id)) notFound();
 
-  useEffect(() => {
-    fetch("/api/content")
-      .then((res) => res.json())
-      .then((json) => {
-        const found = json.content?.find(
-          (c: VideoData & { type: string }) => c.id === params.id && c.type === "video"
-        );
-        if (found) setVideo(found);
-      })
-      .catch(() => {});
-  }, [params.id]);
+  const supabase = await createClient();
 
-  const isLocked = !video.is_free_preview && !hasAccess;
+  const { data: video } = await supabase
+    .from("videos")
+    .select("*")
+    .eq("id", id)
+    .eq("published", true)
+    .single();
 
-  if (accessLoading) {
-    return (
-      <div className="pt-24 min-h-screen bg-background flex items-center justify-center">
-        <p className="text-white/30 text-sm">Loading...</p>
-      </div>
-    );
+  if (!video) notFound();
+
+  // Check if current user has purchased this video
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  let hasPurchased = false;
+
+  if (user) {
+    const { data: purchase } = await supabase
+      .from("purchases")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("video_id", video.id)
+      .eq("status", "approved")
+      .single();
+    hasPurchased = !!purchase;
   }
 
   return (
-    <div className="pt-24 min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        {/* Back */}
-        <Link
-          href="/content"
-          className="inline-flex items-center gap-2 text-white/40 hover:text-gold text-sm mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Content
-        </Link>
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      {/* Video Player */}
+      <VideoPlayer
+        src={hasPurchased ? video.full_video_url : video.preview_url}
+        poster={video.thumbnail_url}
+      />
 
-        {/* Video player or lock */}
-        {isLocked ? (
-          <div className="relative rounded-sm overflow-hidden bg-surface-2 mb-8" style={{ aspectRatio: "16/9" }}>
-            <div className="absolute inset-0">
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `url(${video.thumbnail_url})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  filter: "blur(12px) brightness(0.3)",
-                }}
-              />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                <div className="glass w-20 h-20 rounded-full flex items-center justify-center gold-glow">
-                  <Lock className="w-8 h-8 text-gold" />
-                </div>
-                <div className="text-center">
-                  <p className="font-display text-2xl font-bold text-white mb-2">
-                    Members Only
-                  </p>
-                  <p className="text-white/40 text-sm mb-6">
-                    Pay via Cash App to unlock all content
-                  </p>
-                  <a
-                    href={getCashAppLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-8 py-3 rounded-sm bg-[#00D632] hover:bg-[#00C02E] text-white font-bold text-sm tracking-widest uppercase transition-all"
-                  >
-                    <DollarSign className="w-4 h-4" />
-                    Pay ${CASHAPP_CONFIG.amount}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : video.storage_url ? (
-          <div className="mb-8">
-            <StreamPlayer
-              src={video.storage_url}
-              poster={video.thumbnail_url}
-              title={video.title}
-            />
-          </div>
-        ) : (
-          <div className="relative rounded-sm overflow-hidden bg-surface-2 mb-8 flex items-center justify-center" style={{ aspectRatio: "16/9" }}>
-            <p className="text-white/30 text-sm">Video not available</p>
-          </div>
-        )}
-
-        {/* Info */}
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="flex-1">
-            <div className="flex flex-wrap items-center gap-3 mb-3">
-              {video.duration && (
-                <span className="flex items-center gap-1.5 text-white/40 text-sm">
-                  <Clock className="w-3.5 h-3.5" />
-                  {video.duration}
-                </span>
-              )}
-            </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-              {video.title}
-            </h1>
-            <p className="text-white/40 leading-relaxed mb-6">{video.description}</p>
-            <div className="flex items-center gap-6 text-white/30 text-sm">
-              <span className="flex items-center gap-1.5">
-                <Eye className="w-4 h-4" /> {video.views.toLocaleString()} views
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Heart className="w-4 h-4" /> {video.likes.toLocaleString()} likes
-              </span>
-            </div>
-          </div>
-
-          {/* Sidebar CTA */}
-          {isLocked && (
-            <div className="glass border border-gold/20 rounded-sm p-6 w-full md:w-64 shrink-0 flex flex-col gap-4">
-              <p className="section-eyebrow text-[10px]">Unlock Access</p>
-              <p className="font-display text-lg font-bold text-white">
-                Get Full Access
-              </p>
-              <p className="text-white/40 text-sm">
-                Pay ${CASHAPP_CONFIG.amount} via Cash App to watch this and all videos.
-              </p>
-              <Link href="/subscribe" className="btn-gold text-xs py-3 text-center">
-                Learn More
-              </Link>
-            </div>
+      <div className="mt-8 space-y-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-display font-bold text-white">
+            {video.title}
+          </h1>
+          {video.duration && (
+            <p className="text-sm text-gray-500 mt-1">Duration: {video.duration}</p>
           )}
         </div>
+
+        {video.description && <p className="text-gray-400">{video.description}</p>}
+
+        {hasPurchased ? (
+          <div className="card border-green-800 bg-green-900/20">
+            <p className="text-green-400 font-semibold">
+              You own this video. Enjoy the full version above!
+            </p>
+          </div>
+        ) : (
+          <PurchaseSection video={video} isLoggedIn={!!user} />
+        )}
+      </div>
+
+      <div className="mt-8">
+        <Link href="/" className="text-gold hover:text-gold-light transition-colors">
+          &larr; Back to all videos
+        </Link>
       </div>
     </div>
   );

@@ -2,154 +2,108 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Flame, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
-import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
-const navLinks = [
-  { label: "Content", href: "/content" },
-  { label: "Get Access", href: "/subscribe" },
-  { label: "About", href: "/about" },
-];
-
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/");
-    router.refresh();
-  }
-
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? "glass-dark border-b border-gold/10 py-3" : "bg-transparent py-5"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-sm bg-gold-gradient flex items-center justify-center gold-glow-sm group-hover:gold-glow transition-all duration-300">
-            <Flame className="w-4 h-4 text-background" />
-          </div>
-          <span className="font-display font-bold text-lg tracking-tight">
-            <span className="text-gold-gradient">Caliente</span>
-            <span className="text-white/90"> Hub</span>
-            <span className="text-gold text-sm font-normal ml-1">XXX</span>
-          </span>
+    <nav className="fixed top-0 w-full z-50 bg-bg/90 backdrop-blur-md border-b border-border">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="text-2xl font-display font-bold text-gold">
+          Caliente Hub
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm tracking-widest uppercase text-white/60 hover:text-gold transition-colors duration-300 font-medium"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA Buttons */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-sm text-gray-300 hover:text-gold transition-colors">
+            Videos
+          </Link>
+          <Link href="/subscribe" className="text-sm text-gray-300 hover:text-gold transition-colors">
+            Get Access
+          </Link>
           {user ? (
             <>
-              <Link href="/dashboard" className="btn-outline-gold text-xs py-2 px-5">
+              <Link href="/dashboard" className="text-sm text-gray-300 hover:text-gold transition-colors">
                 Dashboard
               </Link>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-1.5 text-white/40 hover:text-white text-xs tracking-widest uppercase transition-colors"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                Sign Out
-              </button>
+              <form action="/auth/signout" method="post">
+                <button className="text-sm text-gray-400 hover:text-white transition-colors">
+                  Sign Out
+                </button>
+              </form>
             </>
           ) : (
             <>
-              <Link href="/sign-in" className="btn-outline-gold text-xs py-2 px-5">
+              <Link href="/sign-in" className="text-sm text-gray-300 hover:text-gold transition-colors">
                 Sign In
               </Link>
-              <Link href="/subscribe" className="btn-gold text-xs py-2 px-5">
-                Get Access
+              <Link href="/sign-up" className="btn-gold !py-2 !px-4 text-sm">
+                Sign Up
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Toggle */}
+        {/* Mobile toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-gold p-1"
+          className="md:hidden text-gray-300 p-2"
           aria-label="Toggle menu"
         >
-          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {menuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden glass-dark border-t border-gold/10 px-6 py-6 flex flex-col gap-5">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="text-sm tracking-widest uppercase text-white/70 hover:text-gold transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <div className="flex flex-col gap-3 pt-3 border-t border-gold/10">
-            {user ? (
-              <>
-                <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="btn-outline-gold text-xs py-2">
-                  Dashboard
-                </Link>
-                <button
-                  onClick={() => { handleSignOut(); setMenuOpen(false); }}
-                  className="text-white/40 text-xs tracking-widest uppercase py-2"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="btn-outline-gold text-xs py-2">
-                  Sign In
-                </Link>
-                <Link href="/subscribe" onClick={() => setMenuOpen(false)} className="btn-gold text-xs py-2">
-                  Get Access
-                </Link>
-              </>
-            )}
-          </div>
+        <div className="md:hidden border-t border-border bg-bg/95 backdrop-blur-md px-4 py-4 space-y-3">
+          <Link href="/" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+            Videos
+          </Link>
+          <Link href="/subscribe" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+            Get Access
+          </Link>
+          {user ? (
+            <>
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+                Dashboard
+              </Link>
+              <form action="/auth/signout" method="post">
+                <button className="text-gray-400 hover:text-white">Sign Out</button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+                Sign In
+              </Link>
+              <Link href="/sign-up" onClick={() => setMenuOpen(false)} className="block text-gold font-semibold">
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       )}
-    </header>
+    </nav>
   );
 }

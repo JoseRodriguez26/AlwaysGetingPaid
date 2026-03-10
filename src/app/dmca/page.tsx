@@ -1,27 +1,23 @@
-export const metadata = { title: "DMCA | Caliente Hub XXX" };
+export const metadata = { title: "DMCA | Caliente Hub" };
 
 export default function DMCAPage() {
   return (
-    <div className="pt-24 min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="font-display text-4xl font-bold text-white mb-2">DMCA Policy</h1>
-        <p className="text-white/30 text-sm mb-10">Digital Millennium Copyright Act</p>
-        <div className="space-y-6 text-white/50 text-sm leading-loose">
-          <p>
-            Caliente Hub Media LLC (DBA Caliente Hub XXX) respects intellectual property rights and expects users to do the same.
-            We respond to notices of alleged copyright infringement in accordance with the DMCA.
-          </p>
-          <p>
-            If you believe that content on this site infringes your copyright, please send a DMCA takedown
-            notice to our designated agent at:
-          </p>
-          <div className="glass border border-gold/10 rounded-sm p-6">
-            <p className="text-white/70 font-medium mb-1">DMCA Agent — Caliente Hub Media LLC (DBA Caliente Hub XXX)</p>
-            <p>dmca@calientehubxxx.com</p>
-          </div>
-          <p>Your notice must include: identification of the copyrighted work, identification of the allegedly infringing material, your contact information, a statement of good faith belief, and your signature.</p>
-          <p>Repeat infringers will have their accounts terminated.</p>
-        </div>
+    <div className="max-w-3xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-display font-bold text-gold mb-8">DMCA Policy</h1>
+      <div className="prose prose-invert prose-sm max-w-none space-y-6 text-gray-300">
+        <p>Caliente Hub respects intellectual property rights and complies with the Digital Millennium Copyright Act (DMCA).</p>
+        <h2 className="text-white text-lg font-semibold">Copyright Infringement Claims</h2>
+        <p>If you believe content on this site infringes your copyright, please contact us with:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>A description of the copyrighted work</li>
+          <li>The URL where the infringing content is located</li>
+          <li>Your contact information</li>
+          <li>A statement that you have a good faith belief the use is not authorized</li>
+          <li>A statement under penalty of perjury that the information is accurate</li>
+          <li>Your physical or electronic signature</li>
+        </ul>
+        <h2 className="text-white text-lg font-semibold">Response</h2>
+        <p>We will review and respond to valid DMCA takedown notices promptly. Infringing content will be removed within 24-48 hours of verification.</p>
       </div>
     </div>
   );
