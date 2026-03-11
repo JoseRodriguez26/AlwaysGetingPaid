@@ -196,25 +196,6 @@ export default function AgentsPage() {
                 );
               })}
             </div>
-
-            <div style={{
-              background: `${C.amber}08`, border: `1px solid ${C.amber}30`,
-              borderRadius: 14, padding: "16px 20px",
-              display: "flex", alignItems: "flex-start", gap: 12,
-            }}>
-              <span style={{ fontSize: 20 }}>⚠️</span>
-              <div>
-                <div style={{ fontWeight: 700, color: C.amber, marginBottom: 4, fontSize: 14 }}>Claude API Key Required</div>
-                <p style={{ fontSize: 13, color: C.muted, margin: 0, lineHeight: 1.6 }}>
-                  Your $200/mo Claude subscription is for claude.ai chat. To power these agents, you need a separate Claude API key from{" "}
-                  <span style={{ color: C.amber, fontWeight: 600 }}>console.anthropic.com</span>{" "}
-                  → API Keys → Create key. Then add it to Vercel as{" "}
-                  <span style={{ fontFamily: "monospace", background: "#fff1", padding: "1px 6px", borderRadius: 4, color: C.text }}>ANTHROPIC_API_KEY</span>
-                  {" "}in your project environment variables. Also run the SQL in{" "}
-                  <span style={{ fontFamily: "monospace", color: C.text }}>src/lib/agents-schema.sql</span> in Supabase.
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
