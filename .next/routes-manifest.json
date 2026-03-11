@@ -86,10 +86,34 @@
       "namedRegex": "^/api/agents/settings(?:/)?$"
     },
     {
+      "page": "/api/mercadopago/checkout",
+      "regex": "^/api/mercadopago/checkout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mercadopago/checkout(?:/)?$"
+    },
+    {
+      "page": "/api/mercadopago/webhook",
+      "regex": "^/api/mercadopago/webhook(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/mercadopago/webhook(?:/)?$"
+    },
+    {
       "page": "/api/purchases",
       "regex": "^/api/purchases(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/purchases(?:/)?$"
+    },
+    {
+      "page": "/api/stripe/checkout",
+      "regex": "^/api/stripe/checkout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/stripe/checkout(?:/)?$"
+    },
+    {
+      "page": "/api/stripe/webhook",
+      "regex": "^/api/stripe/webhook(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/stripe/webhook(?:/)?$"
     },
     {
       "page": "/api/studio/compliance",

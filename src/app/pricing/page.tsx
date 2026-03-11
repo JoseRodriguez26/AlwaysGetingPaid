@@ -1,5 +1,8 @@
+import CheckoutButton from "@/components/CheckoutButton";
+
 const plans = [
   {
+    id: "starter",
     name: "Starter",
     price: 49,
     badge: null,
@@ -15,6 +18,7 @@ const plans = [
     cta: "Get Started",
   },
   {
+    id: "pro",
     name: "Pro",
     price: 149,
     badge: "MOST POPULAR",
@@ -32,6 +36,7 @@ const plans = [
     cta: "Go Pro",
   },
   {
+    id: "empire",
     name: "Empire",
     price: 299,
     badge: null,
@@ -193,23 +198,12 @@ export default function PricingPage() {
               </ul>
 
               {/* CTA */}
-              <a
-                href="/sign-up"
-                style={{
-                  display: "block", width: "100%", textAlign: "center",
-                  padding: "14px 24px", borderRadius: "12px",
-                  fontWeight: 700, fontSize: "15px", textDecoration: "none",
-                  background: plan.badge
-                    ? "linear-gradient(135deg, #aa55ff, #cc77ff)"
-                    : "transparent",
-                  color: plan.badge ? "#ffffff" : plan.color,
-                  border: plan.badge ? "none" : `1px solid ${plan.color}55`,
-                  boxShadow: plan.badge ? "0 8px 30px rgba(170,85,255,0.3)" : "none",
-                  boxSizing: "border-box",
-                }}
-              >
-                {plan.cta} →
-              </a>
+              <CheckoutButton
+                planId={plan.id}
+                planName={plan.name}
+                price={plan.price}
+                className="btn-gold w-full"
+              />
             </div>
           ))}
         </div>

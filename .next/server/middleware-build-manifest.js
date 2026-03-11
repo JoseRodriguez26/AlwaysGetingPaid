@@ -8,11 +8,11 @@ globalThis.__BUILD_MANIFEST = {
   ],
   "lowPriorityFiles": [],
   "rootMainFiles": [
-    "static/chunks/cee1bb10168f99c0.js",
+    "static/chunks/fd08636e628f8762.js",
     "static/chunks/aa11a69385bb5766.js",
+    "static/chunks/6739d32c74d7e565.js",
     "static/chunks/e7f406a8c8645353.js",
-    "static/chunks/d01f3298eb9b7a6e.js",
-    "static/chunks/turbopack-e3ba5594c1c20631.js"
+    "static/chunks/turbopack-58b54890c55fadab.js"
   ]
 };
 globalThis.__BUILD_MANIFEST.lowPriorityFiles = [

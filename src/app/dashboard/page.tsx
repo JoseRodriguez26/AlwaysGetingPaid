@@ -1,9 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import { useLang } from "@/lib/i18n/LanguageContext";
+
+function PaymentBannerInner() {
+  const searchParams = useSearchParams();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("payment") === "success") {
+      setShow(true);
+      const timer = setTimeout(() => setShow(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
+  if (!show) return null;
+  return (
+    <div style={{
+      position: "fixed", top: "88px", left: "50%", transform: "translateX(-50%)",
+      zIndex: 9998, width: "100%", maxWidth: "600px", padding: "0 16px",
+    }}>
+      <div style={{
+        background: "linear-gradient(135deg, rgba(0,200,100,0.15), rgba(0,180,80,0.1))",
+        border: "1px solid rgba(0,200,100,0.5)",
+        borderRadius: "14px", padding: "16px 20px",
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
+        boxShadow: "0 8px 32px rgba(0,200,100,0.2)",
+        backdropFilter: "blur(8px)",
+      }}>
+        <span style={{ fontSize: "15px", color: "#4ade80", fontWeight: 600 }}>
+          🎉 Payment successful! Your plan has been activated.
+        </span>
+        <button
+          onClick={() => setShow(false)}
+          style={{
+            background: "transparent", border: "none", color: "#4ade80",
+            fontSize: "18px", cursor: "pointer", lineHeight: 1, flexShrink: 0,
+          }}
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PaymentBanner() {
+  return (
+    <Suspense fallback={null}>
+      <PaymentBannerInner />
+    </Suspense>
+  );
+}
 
 type UsageData = {
   plan: string;
@@ -191,6 +244,10 @@ export default function DashboardPage() {
 
   return (
     <div style={{ background: "#08070e", minHeight: "100vh", color: "#e5e5e5", paddingTop: "80px" }}>
+
+      {/* Payment success banner */}
+      <PaymentBanner />
+
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 24px" }}>
 
         {/* Header */}
