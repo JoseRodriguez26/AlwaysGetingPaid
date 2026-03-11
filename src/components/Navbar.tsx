@@ -21,37 +21,47 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-bg/90 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 w-full z-50 glass border-b border-white/[0.06]">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-display font-bold text-gold">
-          Caliente Hub
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
+            <span className="text-black font-bold text-sm">CH</span>
+          </div>
+          <span className="text-xl font-display font-bold text-white">
+            Caliente <span className="text-gold">Hub</span>
+          </span>
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-sm text-gray-300 hover:text-gold transition-colors">
+        <div className="hidden md:flex items-center gap-1">
+          <Link href="/" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
             Videos
           </Link>
-          <Link href="/subscribe" className="text-sm text-gray-300 hover:text-gold transition-colors">
+          <Link href="/subscribe" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
             Get Access
+          </Link>
+          <Link href="/agents" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+            AI Agents
           </Link>
           {user ? (
             <>
-              <Link href="/dashboard" className="text-sm text-gray-300 hover:text-gold transition-colors">
+              <Link href="/dashboard" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
                 Dashboard
               </Link>
+              <div className="w-px h-6 bg-white/10 mx-2" />
               <form action="/auth/signout" method="post">
-                <button className="text-sm text-gray-400 hover:text-white transition-colors">
+                <button className="px-4 py-2 text-sm text-gray-500 hover:text-white rounded-lg transition-all">
                   Sign Out
                 </button>
               </form>
             </>
           ) : (
             <>
-              <Link href="/sign-in" className="text-sm text-gray-300 hover:text-gold transition-colors">
+              <div className="w-px h-6 bg-white/10 mx-2" />
+              <Link href="/sign-in" className="px-4 py-2 text-sm text-gray-300 hover:text-white rounded-lg transition-all">
                 Sign In
               </Link>
-              <Link href="/sign-up" className="btn-gold !py-2 !px-4 text-sm">
+              <Link href="/sign-up" className="btn-gold !py-2 !px-5 text-sm ml-1">
                 Sign Up
               </Link>
             </>
@@ -61,10 +71,10 @@ export default function Navbar() {
         {/* Mobile toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-gray-300 p-2"
+          className="md:hidden text-gray-300 p-2 hover:bg-white/5 rounded-lg transition-colors"
           aria-label="Toggle menu"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {menuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -76,28 +86,33 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-border bg-bg/95 backdrop-blur-md px-4 py-4 space-y-3">
-          <Link href="/" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+        <div className="md:hidden border-t border-white/[0.06] glass px-4 py-3 space-y-1">
+          <Link href="/" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
             Videos
           </Link>
-          <Link href="/subscribe" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+          <Link href="/subscribe" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
             Get Access
+          </Link>
+          <Link href="/agents" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+            AI Agents
           </Link>
           {user ? (
             <>
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
                 Dashboard
               </Link>
               <form action="/auth/signout" method="post">
-                <button className="text-gray-400 hover:text-white">Sign Out</button>
+                <button className="block w-full text-left px-3 py-2.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+                  Sign Out
+                </button>
               </form>
             </>
           ) : (
             <>
-              <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="block text-gray-300 hover:text-gold">
+              <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
                 Sign In
               </Link>
-              <Link href="/sign-up" onClick={() => setMenuOpen(false)} className="block text-gold font-semibold">
+              <Link href="/sign-up" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gold font-semibold hover:bg-gold/5 rounded-lg transition-all">
                 Sign Up
               </Link>
             </>

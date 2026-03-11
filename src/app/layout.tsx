@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "Caliente Hub - Premium Content",
-  description: "Exclusive premium adult content",
+  title: "Caliente Hub XXX - Premium Adult Content",
+  description: "Exclusive premium adult videos. Free preview on every video.",
   robots: { index: false, follow: false },
 };
 
