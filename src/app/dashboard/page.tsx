@@ -1,313 +1,320 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Video, Purchase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser";
+import type { User } from "@supabase/supabase-js";
 
-type Tab = "overview" | "videos" | "upload" | "purchases";
+const AGENTS = [
+  { id: "aria7",   name: "ARIA-7",   type: "Fan DM Agent",    emoji: "💬", color: "#ff3388", desc: "Replies to fans 24/7 in your voice" },
+  { id: "shieldx", name: "SHIELD-X", type: "Content Guard",   emoji: "🛡️", color: "#00ffcc", desc: "Blocks leaks, deepfakes & violations" },
+  { id: "muse3",   name: "MUSE-3",   type: "Post Scheduler",  emoji: "📅", color: "#aa55ff", desc: "Posts at peak times on every platform" },
+  { id: "prism",   name: "PRISM",    type: "Revenue Brain",   emoji: "📊", color: "#3388ff", desc: "Tracks your money and finds growth gaps" },
+  { id: "echov",   name: "ECHO-V",   type: "Voice Clone",     emoji: "🎙️", color: "#ffaa00", desc: "Sends personalized voice messages to fans" },
+  { id: "pixelq",  name: "PIXEL-Q",  type: "Media Gen",       emoji: "🎨", color: "#ff3388", desc: "Creates thumbnails and promo content" },
+  { id: "flux",    name: "FLUX",     type: "Price Optimizer", emoji: "💹", color: "#00ffcc", desc: "A/B tests pricing to maximize revenue" },
+  { id: "guard2",  name: "GUARD-2",  type: "DMCA Hunter",     emoji: "🔍", color: "#aa55ff", desc: "Finds pirated content and files takedowns" },
+];
+
+const QUICK_ACTIONS = [
+  { label: "Test a DM", href: "/agents#aria7", emoji: "💬", color: "#ff3388" },
+  { label: "Generate Schedule", href: "/agents#muse3", emoji: "📅", color: "#aa55ff" },
+  { label: "Run Analysis", href: "/agents#prism", emoji: "📊", color: "#3388ff" },
+];
+
+function getLS(key: string, fallback: boolean): boolean {
+  if (typeof window === "undefined") return fallback;
+  const v = localStorage.getItem(key);
+  return v === null ? fallback : v === "true";
+}
+
+function setLS(key: string, value: boolean) {
+  if (typeof window !== "undefined") localStorage.setItem(key, String(value));
+}
 
 export default function DashboardPage() {
-  const [tab, setTab] = useState<Tab>("overview");
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [purchases, setPurchases] = useState<(Purchase & { videos?: Video })[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [agentStates, setAgentStates] = useState<Record<string, boolean>>({});
+  const [stats, setStats] = useState({ dmCount: 0, scheduleCount: 0, activeAgents: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
 
-  // Upload form
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    price: "9.99",
-    preview_url: "",
-    full_video_url: "",
-    thumbnail_url: "",
-    duration: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState("");
-
-  async function loadData() {
-    setLoading(true);
-    const [videosRes, purchasesRes] = await Promise.all([
-      fetch("/api/videos"),
-      fetch("/api/purchases"),
-    ]);
-    const videosJson = await videosRes.json();
-    const purchasesJson = await purchasesRes.json();
-    if (videosJson.videos) setVideos(videosJson.videos);
-    if (purchasesJson.purchases) setPurchases(purchasesJson.purchases);
-    setLoading(false);
-  }
-
+  // Load user
   useEffect(() => {
-    loadData();
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
-  async function handleUpload(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-    setMessage("");
-
-    const res = await fetch("/api/videos", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        price: parseFloat(form.price),
-        published: true,
-      }),
+  // Load agent ON/OFF states from localStorage
+  useEffect(() => {
+    const initial: Record<string, boolean> = {};
+    AGENTS.forEach((a) => {
+      initial[a.id] = getLS(`agent_${a.id}`, a.id === "aria7" || a.id === "muse3");
     });
+    setAgentStates(initial);
+  }, []);
 
-    if (res.ok) {
-      setMessage("Video published!");
-      setForm({ title: "", description: "", price: "9.99", preview_url: "", full_video_url: "", thumbnail_url: "", duration: "" });
-      await loadData();
-    } else {
-      const json = await res.json();
-      setMessage(json.error || "Error uploading");
+  // Load stats from API
+  useEffect(() => {
+    async function loadStats() {
+      setLoadingStats(true);
+      try {
+        const [dmRes, schedRes, settingsRes] = await Promise.all([
+          fetch("/api/agents/dm").catch(() => null),
+          fetch("/api/agents/scheduler").catch(() => null),
+          fetch("/api/agents/settings").catch(() => null),
+        ]);
+
+        let dmCount = 0;
+        let scheduleCount = 0;
+        let activeAgents = 0;
+
+        if (dmRes?.ok) {
+          const dmJson = await dmRes.json().catch(() => ({}));
+          dmCount = dmJson?.logs?.length ?? dmJson?.count ?? 0;
+        }
+        if (schedRes?.ok) {
+          const schedJson = await schedRes.json().catch(() => ({}));
+          scheduleCount = schedJson?.schedule?.length ?? schedJson?.count ?? 0;
+        }
+        if (settingsRes?.ok) {
+          const settingsJson = await settingsRes.json().catch(() => ({}));
+          activeAgents = settingsJson?.activeAgents ?? settingsJson?.count ?? 0;
+        }
+
+        setStats({ dmCount, scheduleCount, activeAgents });
+      } catch {
+        // silently fail — stats will show 0
+      } finally {
+        setLoadingStats(false);
+      }
     }
-    setSubmitting(false);
-  }
+    loadStats();
+  }, []);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Delete this video?")) return;
-    await fetch(`/api/videos?id=${id}`, { method: "DELETE" });
-    setVideos((prev) => prev.filter((v) => v.id !== id));
-  }
-
-  async function handlePurchaseAction(id: string, status: "approved" | "rejected") {
-    const res = await fetch("/api/purchases", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
+  function toggleAgent(id: string) {
+    setAgentStates((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      setLS(`agent_${id}`, next[id]);
+      return next;
     });
-    if (res.ok) {
-      setPurchases((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status } : p))
-      );
-    }
   }
 
-  const pendingCount = purchases.filter((p) => p.status === "pending").length;
+  const activeCount = Object.values(agentStates).filter(Boolean).length;
+
+  const statCards = [
+    { label: "Active Agents", value: activeCount, suffix: `/ ${AGENTS.length}`, color: "#00ffcc", icon: "🤖" },
+    { label: "DMs This Month", value: loadingStats ? "—" : stats.dmCount.toLocaleString(), color: "#ff3388", icon: "💬" },
+    { label: "Posts Scheduled", value: loadingStats ? "—" : stats.scheduleCount.toLocaleString(), color: "#aa55ff", icon: "📅" },
+    { label: "Revenue Analyzed", value: loadingStats ? "—" : stats.activeAgents > 0 ? "Live" : "Offline", color: "#3388ff", icon: "📊" },
+  ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-display font-bold text-gold">Dashboard</h1>
-        <button onClick={() => setTab("upload")} className="btn-gold text-sm">
-          + Upload Video
-        </button>
-      </div>
+    <div style={{ background: "#08070e", minHeight: "100vh", color: "#e5e5e5", paddingTop: "80px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 24px" }}>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-surface border border-border rounded-lg p-1 mb-8 w-fit">
-        {(["overview", "videos", "upload", "purchases"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-md text-sm capitalize transition-all ${
-              tab === t
-                ? "bg-gold text-black font-semibold"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            {t}
-            {t === "purchases" && pendingCount > 0 && (
-              <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {pendingCount}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+        {/* Header */}
+        <div style={{ marginBottom: "40px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
+            <span style={{ fontSize: "28px" }}>🤖</span>
+            <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, color: "#ffffff", margin: 0 }}>
+              My Agent Empire
+            </h1>
+          </div>
+          {user && (
+            <p style={{ color: "#444466", fontSize: "13px", marginLeft: "40px" }}>
+              {user.email}
+            </p>
+          )}
+        </div>
 
-      {/* Overview */}
-      {tab === "overview" && (
-        <div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[
-              { label: "Videos", value: videos.length },
-              { label: "Pending Payments", value: pendingCount },
-              { label: "Approved", value: purchases.filter((p) => p.status === "approved").length },
-              { label: "Total Revenue", value: `$${purchases.filter((p) => p.status === "approved").reduce((s, p) => s + Number(p.amount), 0).toFixed(2)}` },
-            ].map((s) => (
-              <div key={s.label} className="card">
-                <p className="text-2xl font-bold text-white">{s.value}</p>
-                <p className="text-sm text-gray-500 mt-1">{s.label}</p>
+        {/* Stats Row */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "16px",
+          marginBottom: "48px",
+        }}>
+          {statCards.map((s) => (
+            <div
+              key={s.label}
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: `1px solid ${s.color}33`,
+                borderRadius: "16px",
+                padding: "24px",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              <div style={{
+                position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+                background: `linear-gradient(90deg, transparent, ${s.color}, transparent)`,
+              }} />
+              <div style={{ fontSize: "24px", marginBottom: "10px" }}>{s.icon}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+                <span style={{ fontSize: "28px", fontWeight: 800, color: s.color, letterSpacing: "-0.02em" }}>
+                  {s.value}
+                </span>
+                {s.suffix && (
+                  <span style={{ fontSize: "12px", color: "#444466" }}>{s.suffix}</span>
+                )}
               </div>
+              <p style={{ fontSize: "11px", color: "#555577", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Agent Grid */}
+        <div style={{ marginBottom: "48px" }}>
+          <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", marginBottom: "20px" }}>
+            Your Agents
+          </h2>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: "16px",
+          }}>
+            {AGENTS.map((agent) => {
+              const isOn = agentStates[agent.id] ?? false;
+              return (
+                <div
+                  key={agent.id}
+                  style={{
+                    background: isOn
+                      ? `linear-gradient(145deg, ${agent.color}0d 0%, rgba(255,255,255,0.025) 100%)`
+                      : "rgba(255,255,255,0.02)",
+                    border: isOn ? `1px solid ${agent.color}44` : "1px solid rgba(255,255,255,0.07)",
+                    borderRadius: "16px",
+                    padding: "20px",
+                    transition: "all 0.3s",
+                    position: "relative",
+                  }}
+                >
+                  {/* Active glow top */}
+                  {isOn && (
+                    <div style={{
+                      position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+                      background: `linear-gradient(90deg, transparent, ${agent.color}, transparent)`,
+                    }} />
+                  )}
+
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      {/* Avatar + status dot */}
+                      <div style={{ position: "relative" }}>
+                        <div style={{
+                          width: "44px", height: "44px", borderRadius: "12px",
+                          background: `${agent.color}15`, border: `1px solid ${agent.color}33`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "20px",
+                        }}>
+                          {agent.emoji}
+                        </div>
+                        {/* Pulsing status dot */}
+                        <div style={{
+                          position: "absolute", bottom: "-2px", right: "-2px",
+                          width: "10px", height: "10px", borderRadius: "50%",
+                          background: isOn ? "#00ff88" : "#333355",
+                          border: "2px solid #08070e",
+                          animation: isOn ? "pulse 2s ease-in-out infinite" : "none",
+                          boxShadow: isOn ? "0 0 6px #00ff88" : "none",
+                        }} />
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: "15px", fontWeight: 700, color: isOn ? agent.color : "#888899", margin: 0, letterSpacing: "0.04em" }}>
+                          {agent.name}
+                        </h3>
+                        <p style={{ fontSize: "10px", color: "#444466", textTransform: "uppercase", letterSpacing: "0.08em", margin: "2px 0 0" }}>
+                          {agent.type}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Toggle */}
+                    <button
+                      onClick={() => toggleAgent(agent.id)}
+                      style={{
+                        width: "44px", height: "24px", borderRadius: "12px",
+                        background: isOn ? agent.color : "rgba(255,255,255,0.08)",
+                        border: "none", cursor: "pointer", position: "relative",
+                        transition: "background 0.3s",
+                        flexShrink: 0,
+                      }}
+                      aria-label={`Toggle ${agent.name}`}
+                    >
+                      <div style={{
+                        position: "absolute", top: "3px",
+                        left: isOn ? "23px" : "3px",
+                        width: "18px", height: "18px", borderRadius: "50%",
+                        background: "#ffffff",
+                        transition: "left 0.2s",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                      }} />
+                    </button>
+                  </div>
+
+                  <p style={{ fontSize: "12px", color: "#555577", marginBottom: "14px", lineHeight: 1.5 }}>
+                    {agent.desc}
+                  </p>
+
+                  <a
+                    href="/agents"
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: "6px",
+                      fontSize: "11px", fontWeight: 600, color: agent.color,
+                      textDecoration: "none",
+                      background: `${agent.color}0d`,
+                      border: `1px solid ${agent.color}33`,
+                      borderRadius: "8px", padding: "6px 12px",
+                    }}
+                  >
+                    Configure →
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", marginBottom: "20px" }}>
+            Quick Actions
+          </h2>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {QUICK_ACTIONS.map((action) => (
+              <a
+                key={action.label}
+                href={action.href}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: `1px solid ${action.color}44`,
+                  borderRadius: "12px", padding: "14px 22px",
+                  color: action.color, fontWeight: 600, fontSize: "14px",
+                  textDecoration: "none",
+                  transition: "all 0.2s",
+                }}
+              >
+                <span style={{ fontSize: "18px" }}>{action.emoji}</span>
+                {action.label}
+              </a>
             ))}
           </div>
-
-          {pendingCount > 0 && (
-            <div className="card border-gold/30 mb-6">
-              <p className="text-gold font-semibold">
-                You have {pendingCount} pending payment(s) to review.
-              </p>
-              <button onClick={() => setTab("purchases")} className="text-sm text-gold hover:text-gold-light mt-2 underline">
-                Review now &rarr;
-              </button>
-            </div>
-          )}
         </div>
-      )}
+      </div>
 
-      {/* Videos */}
-      {tab === "videos" && (
-        <div>
-          {loading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : videos.length === 0 ? (
-            <div className="card text-center py-12">
-              <p className="text-gray-500 mb-4">No videos yet.</p>
-              <button onClick={() => setTab("upload")} className="btn-gold text-sm">
-                Upload Your First Video
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {videos.map((v) => (
-                <div key={v.id} className="card flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    {v.thumbnail_url && (
-                      <img src={v.thumbnail_url} alt="" className="w-20 h-12 object-cover rounded" />
-                    )}
-                    <div>
-                      <h3 className="text-white font-semibold">{v.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        ${Number(v.price).toFixed(2)} &middot; {v.duration || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-                  <button onClick={() => handleDelete(v.id)} className="text-gray-500 hover:text-red-400 text-sm">
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Upload */}
-      {tab === "upload" && (
-        <div className="max-w-xl">
-          {message && (
-            <div className={`card mb-4 ${message.includes("Error") ? "border-red-500/50" : "border-green-500/50"}`}>
-              <p className={message.includes("Error") ? "text-red-400" : "text-green-400"}>
-                {message}
-              </p>
-            </div>
-          )}
-          <form onSubmit={handleUpload} className="card space-y-4">
-            <h2 className="text-xl font-display font-bold text-white mb-2">
-              Upload New Video
-            </h2>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Title *</label>
-              <input required type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white focus:border-gold focus:outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Description</label>
-              <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white focus:border-gold focus:outline-none resize-none" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Price ($) *</label>
-                <input required type="number" step="0.01" min="0.99" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white focus:border-gold focus:outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Duration</label>
-                <input type="text" placeholder="e.g. 24:30" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })}
-                  className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-gold focus:outline-none" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Preview Video URL * (59 sec clip)</label>
-              <input required type="url" value={form.preview_url} onChange={(e) => setForm({ ...form, preview_url: e.target.value })}
-                placeholder="https://your-r2-bucket.../preview.mp4"
-                className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-gold focus:outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Full Video URL *</label>
-              <input required type="url" value={form.full_video_url} onChange={(e) => setForm({ ...form, full_video_url: e.target.value })}
-                placeholder="https://your-r2-bucket.../full-video.mp4"
-                className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-gold focus:outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Thumbnail URL</label>
-              <input type="url" value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })}
-                placeholder="https://..."
-                className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-gold focus:outline-none" />
-            </div>
-            <button type="submit" disabled={submitting} className="btn-gold w-full">
-              {submitting ? "Publishing..." : "Publish Video"}
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* Purchases / Payment verification */}
-      {tab === "purchases" && (
-        <div>
-          <h2 className="text-xl font-display font-bold text-white mb-4">
-            Payment Verification
-          </h2>
-          {loading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : purchases.length === 0 ? (
-            <div className="card text-center py-12">
-              <p className="text-gray-500">No purchase requests yet.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {[...purchases]
-                .sort((a, _b) => (a.status === "pending" ? -1 : 1))
-                .map((p) => (
-                  <div key={p.id} className={`card flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${p.status === "pending" ? "border-gold/30" : ""}`}>
-                    <div>
-                      <p className="text-white font-semibold">{p.user_email}</p>
-                      <p className="text-sm text-gray-500">
-                        ${Number(p.amount).toFixed(2)} via {p.payment_method} &middot;{" "}
-                        Ref: <span className="text-gray-300">{p.payment_reference}</span>
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        {new Date(p.created_at).toLocaleDateString()} &middot;{" "}
-                        Video: {p.videos?.title || p.video_id}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {p.status === "pending" ? (
-                        <>
-                          <button
-                            onClick={() => handlePurchaseAction(p.id, "approved")}
-                            className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-500 text-white text-sm font-semibold transition-colors"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handlePurchaseAction(p.id, "rejected")}
-                            className="px-4 py-2 rounded-lg border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-colors"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      ) : (
-                        <span className={`text-sm px-3 py-1 rounded-full ${
-                          p.status === "approved"
-                            ? "bg-green-500/10 text-green-400"
-                            : "bg-red-500/10 text-red-400"
-                        }`}>
-                          {p.status}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-      )}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(0.85); }
+        }
+      `}</style>
     </div>
   );
 }

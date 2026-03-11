@@ -24,24 +24,19 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 glass border-b border-white/[0.06]">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-            <span className="text-black font-bold text-sm">CH</span>
-          </div>
+          <span className="text-xl">🤖</span>
           <span className="text-xl font-display font-bold text-white">
-            Caliente <span className="text-gold">Hub</span>
+            Caliente<span className="text-gold">AI</span>
           </span>
         </Link>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
-          <Link href="/" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Videos
-          </Link>
-          <Link href="/subscribe" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Get Access
-          </Link>
           <Link href="/agents" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            AI Agents
+            Agents
+          </Link>
+          <Link href="/pricing" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+            Pricing
           </Link>
           {user ? (
             <>
@@ -62,7 +57,7 @@ export default function Navbar() {
                 Sign In
               </Link>
               <Link href="/sign-up" className="btn-gold !py-2 !px-5 text-sm ml-1">
-                Sign Up
+                Start Free
               </Link>
             </>
           )}
@@ -87,14 +82,11 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-white/[0.06] glass px-4 py-3 space-y-1">
-          <Link href="/" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Videos
-          </Link>
-          <Link href="/subscribe" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Get Access
-          </Link>
           <Link href="/agents" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            AI Agents
+            Agents
+          </Link>
+          <Link href="/pricing" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+            Pricing
           </Link>
           {user ? (
             <>
@@ -113,7 +105,7 @@ export default function Navbar() {
                 Sign In
               </Link>
               <Link href="/sign-up" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gold font-semibold hover:bg-gold/5 rounded-lg transition-all">
-                Sign Up
+                Start Free
               </Link>
             </>
           )}
