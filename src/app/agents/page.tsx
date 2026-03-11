@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLang } from "@/lib/i18n/LanguageContext";
 
 const C = {
   bg: "#08070e",
@@ -53,6 +54,7 @@ const AGENTS = [
 ];
 
 export default function AgentsPage() {
+  const { t } = useLang();
   const [tab, setTab] = useState<AgentId | "overview">("overview");
   const [notif, setNotif] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [configs, setConfigs] = useState<Record<string, any>>({});
@@ -121,8 +123,8 @@ export default function AgentsPage() {
               display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18,
             }}>🤖</div>
             <div>
-              <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Agent<span style={{ color: C.neon }}>Net</span></h1>
-              <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Powered by Claude Opus 4.6</p>
+              <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>{t.agents.pageTitle}</h1>
+              <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>{t.agents.pageSubtitle}</p>
             </div>
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.neon, animation: "pulse 2s infinite" }} />
@@ -136,13 +138,13 @@ export default function AgentsPage() {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 4, marginBottom: 28, background: C.card, borderRadius: 12, padding: 4, width: "fit-content", border: `1px solid ${C.border}` }}>
-          {[{ id: "overview", label: "Overview" }, ...AGENTS.map(a => ({ id: a.id, label: a.name }))].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id as any)} style={{
+          {[{ id: "overview", label: "Overview" }, ...AGENTS.map(a => ({ id: a.id, label: a.name }))].map(tab_ => (
+            <button key={tab_.id} onClick={() => setTab(tab_.id as any)} style={{
               padding: "8px 20px", borderRadius: 8, border: "none", cursor: "pointer",
-              background: tab === t.id ? `${C.neon}15` : "transparent",
-              color: tab === t.id ? C.neon : C.muted,
+              background: tab === tab_.id ? `${C.neon}15` : "transparent",
+              color: tab === tab_.id ? C.neon : C.muted,
               fontSize: 13, fontWeight: 600, transition: "all 0.2s",
-            }}>{t.label}</button>
+            }}>{tab_.label}</button>
           ))}
         </div>
 
@@ -208,6 +210,7 @@ export default function AgentsPage() {
 }
 
 function Aria7Panel({ config, onSave, toast }: { config: any; onSave: (e: boolean, c: any) => void; toast: (m: string, t?: any) => void }) {
+  const { t } = useLang();
   const cfg = config?.config ?? {};
   const [enabled, setEnabled] = useState(config?.enabled ?? false);
   const [creatorName, setCreatorName] = useState(cfg.creator_name ?? "");
@@ -254,8 +257,8 @@ function Aria7Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
     <div style={{ animation: "rise 0.3s ease", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}` }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <div><div style={{ fontWeight: 700, fontSize: 16 }}>🤖 ARIA-7 Settings</div>
-            <div style={{ fontSize: 12, color: C.muted }}>Fan DM Automation</div></div>
+          <div><div style={{ fontWeight: 700, fontSize: 16 }}>🤖 {t.agents.aria.name} Settings</div>
+            <div style={{ fontSize: 12, color: C.muted }}>{t.agents.aria.role}</div></div>
           <button onClick={() => setEnabled(!enabled)} style={{
             padding: "6px 16px", borderRadius: 20, border: "none", cursor: "pointer",
             background: enabled ? `${C.neon}20` : `${C.dim}40`,
@@ -300,9 +303,9 @@ function Aria7Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}` }}>
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 14 }}>🧪 Test a DM Response</div>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 14 }}>🧪 {t.agents.aria.inputLabel}</div>
           <textarea value={testFanMsg} onChange={e => setTestFanMsg(e.target.value)}
-            placeholder="Type a fan message to test... e.g. 'omg ur so hot 😍 do u do custom videos?'"
+            placeholder={t.agents.aria.inputPlaceholder}
             rows={3} style={{
               width: "100%", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
               color: C.text, padding: "10px 14px", fontSize: 13, resize: "none", marginBottom: 10,
@@ -311,13 +314,13 @@ function Aria7Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
             width: "100%", padding: "10px", borderRadius: 9, border: "none", cursor: "pointer",
             background: testing ? C.dim : `linear-gradient(135deg, ${C.pink}, ${C.pink}99)`,
             color: "#fff", fontWeight: 700, fontSize: 13,
-          }}>{testing ? "Claude is thinking..." : "Generate Response ⚡"}</button>
+          }}>{testing ? t.agents.aria.generatingBtn : `${t.agents.aria.generateBtn} ⚡`}</button>
           {testResponse && (
             <div style={{
               marginTop: 14, background: `${C.pink}08`, border: `1px solid ${C.pink}25`,
               borderRadius: 10, padding: "14px",
             }}>
-              <div style={{ fontSize: 10, color: C.pink, fontWeight: 700, marginBottom: 6 }}>ARIA-7 RESPONSE (Claude Opus 4.6)</div>
+              <div style={{ fontSize: 10, color: C.pink, fontWeight: 700, marginBottom: 6 }}>{t.agents.aria.responseLabel}</div>
               <p style={{ fontSize: 13, color: C.text, lineHeight: 1.7, margin: 0 }}>{testResponse}</p>
             </div>
           )}
@@ -344,6 +347,7 @@ function Aria7Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
 }
 
 function Muse3Panel({ config, onSave, toast }: { config: any; onSave: (e: boolean, c: any) => void; toast: (m: string, t?: any) => void }) {
+  const { t } = useLang();
   const cfg = config?.config ?? {};
   const [enabled, setEnabled] = useState(config?.enabled ?? false);
   const [niche, setNiche] = useState(cfg.niche ?? "adult content creator");
@@ -391,8 +395,8 @@ function Muse3Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
     <div style={{ animation: "rise 0.3s ease", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}` }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <div><div style={{ fontWeight: 700, fontSize: 16 }}>📅 MUSE-3 Settings</div>
-            <div style={{ fontSize: 12, color: C.muted }}>Content Scheduler</div></div>
+          <div><div style={{ fontWeight: 700, fontSize: 16 }}>📅 {t.agents.muse.name} Settings</div>
+            <div style={{ fontSize: 12, color: C.muted }}>{t.agents.muse.role}</div></div>
           <button onClick={() => setEnabled(!enabled)} style={{
             padding: "6px 16px", borderRadius: 20, border: "none", cursor: "pointer",
             background: enabled ? `${C.neon}20` : `${C.dim}40`,
@@ -404,7 +408,7 @@ function Muse3Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
           <Field label="Content vibe" value={style} onChange={setStyle} placeholder="flirty, dominant, girl-next-door..." />
           <Field label="Brand keywords (comma separated)" value={brandKeywords} onChange={setBrandKeywords} placeholder="hot, exclusive, uncensored..." />
           <div>
-            <label style={{ fontSize: 12, color: C.muted, fontWeight: 600, display: "block", marginBottom: 8 }}>Platforms</label>
+            <label style={{ fontSize: 12, color: C.muted, fontWeight: 600, display: "block", marginBottom: 8 }}>{t.agents.muse.platformsLabel}</label>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {["twitter", "reddit", "instagram", "tiktok", "telegram"].map(p => (
                 <button key={p} onClick={() => togglePlatform(p)} style={{
@@ -434,7 +438,7 @@ function Muse3Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
             width: "100%", padding: "10px", borderRadius: 9, border: "none", cursor: "pointer",
             background: generating ? C.dim : `linear-gradient(135deg, ${C.purple}, ${C.purple}99)`,
             color: "#fff", fontWeight: 700, fontSize: 13,
-          }}>{generating ? "Claude is generating..." : "Generate 7-Day Schedule ⚡"}</button>
+          }}>{generating ? t.agents.muse.generatingBtn : `${t.agents.muse.generateBtn} ⚡`}</button>
         </div>
       </div>
 
@@ -480,6 +484,7 @@ function Muse3Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
 }
 
 function PrismPanel({ config, onSave, toast }: { config: any; onSave: (e: boolean, c: any) => void; toast: (m: string, t?: any) => void }) {
+  const { t } = useLang();
   const [enabled, setEnabled] = useState(config?.enabled ?? false);
   const [analyzing, setAnalyzing] = useState(false);
   const [report, setReport] = useState<any>(null);
@@ -502,8 +507,8 @@ function PrismPanel({ config, onSave, toast }: { config: any; onSave: (e: boolea
     <div style={{ animation: "rise 0.3s ease", display: "grid", gridTemplateColumns: "280px 1fr", gap: 16 }}>
       <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}`, height: "fit-content" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <div><div style={{ fontWeight: 700, fontSize: 16 }}>📊 PRISM</div>
-            <div style={{ fontSize: 12, color: C.muted }}>Revenue Analytics</div></div>
+          <div><div style={{ fontWeight: 700, fontSize: 16 }}>📊 {t.agents.prism.name}</div>
+            <div style={{ fontSize: 12, color: C.muted }}>{t.agents.prism.role}</div></div>
           <button onClick={() => setEnabled(!enabled)} style={{
             padding: "5px 12px", borderRadius: 20, border: "none", cursor: "pointer",
             background: enabled ? `${C.neon}20` : `${C.dim}40`,
@@ -517,7 +522,7 @@ function PrismPanel({ config, onSave, toast }: { config: any; onSave: (e: boolea
           width: "100%", padding: "12px", borderRadius: 10, border: "none", cursor: "pointer",
           background: analyzing ? C.dim : `linear-gradient(135deg, ${C.blue}, ${C.blue}99)`,
           color: "#fff", fontWeight: 700, fontSize: 14, marginBottom: 10,
-        }}>{analyzing ? "Claude is analyzing..." : "Run Analysis ⚡"}</button>
+        }}>{analyzing ? t.agents.prism.generatingBtn : `${t.agents.prism.generateBtn} ⚡`}</button>
         <button onClick={() => onSave(enabled, {})} style={{
           width: "100%", padding: "10px", borderRadius: 10, border: `1px solid ${C.blue}30`,
           background: `${C.blue}10`, color: C.blue, fontWeight: 700, fontSize: 13, cursor: "pointer",
@@ -535,12 +540,12 @@ function PrismPanel({ config, onSave, toast }: { config: any; onSave: (e: boolea
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14 }}>
               <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}`, textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginBottom: 8 }}>REVENUE SCORE</div>
+                <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, marginBottom: 8 }}>{t.agents.prism.scoreLabel.toUpperCase()}</div>
                 <div style={{ fontSize: 52, fontWeight: 800, color: scoreColor(report.revenue_score ?? 0) }}>{report.revenue_score ?? 0}</div>
                 <div style={{ fontSize: 11, color: C.muted }}>out of 100</div>
               </div>
               <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.neon}25` }}>
-                <div style={{ fontSize: 11, color: C.neon, fontWeight: 700, marginBottom: 8 }}>TOP INSIGHT</div>
+                <div style={{ fontSize: 11, color: C.neon, fontWeight: 700, marginBottom: 8 }}>{t.agents.prism.insightLabel.toUpperCase()}</div>
                 <p style={{ fontSize: 14, color: C.text, lineHeight: 1.7, margin: 0 }}>{report.top_insight}</p>
               </div>
             </div>
@@ -558,7 +563,7 @@ function PrismPanel({ config, onSave, toast }: { config: any; onSave: (e: boolea
             </div>
             {report.recommendations?.length > 0 && (
               <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>🎯 Claude's Recommendations</div>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>🎯 {t.agents.prism.recsLabel}</div>
                 {report.recommendations.map((rec: any, i: number) => (
                   <div key={i} style={{
                     display: "flex", gap: 12, padding: "12px 0",
@@ -579,7 +584,7 @@ function PrismPanel({ config, onSave, toast }: { config: any; onSave: (e: boolea
             )}
             {report.weekly_goals?.length > 0 && (
               <div style={{ background: C.card, borderRadius: 16, padding: "24px", border: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>📌 This Week's Goals</div>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>📌 {t.agents.prism.goalsLabel}</div>
                 {report.weekly_goals.map((goal: string, i: number) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.neon, marginTop: 5, flexShrink: 0 }} />

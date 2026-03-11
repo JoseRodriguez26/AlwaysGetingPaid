@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
+import { useLang } from "@/lib/i18n/LanguageContext";
+import LangToggle from "@/components/LangToggle";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     const supabase = createClient();
@@ -33,31 +36,33 @@ export default function Navbar() {
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
           <Link href="/agents" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Agents
+            {t.nav.agents}
           </Link>
           <Link href="/pricing" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Pricing
+            {t.nav.pricing}
           </Link>
           {user ? (
             <>
               <Link href="/dashboard" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                Dashboard
+                {t.nav.dashboard}
               </Link>
               <div className="w-px h-6 bg-white/10 mx-2" />
+              <LangToggle />
               <form action="/auth/signout" method="post">
                 <button className="px-4 py-2 text-sm text-gray-500 hover:text-white rounded-lg transition-all">
-                  Sign Out
+                  {t.nav.signOut}
                 </button>
               </form>
             </>
           ) : (
             <>
               <div className="w-px h-6 bg-white/10 mx-2" />
+              <LangToggle />
               <Link href="/sign-in" className="px-4 py-2 text-sm text-gray-300 hover:text-white rounded-lg transition-all">
-                Sign In
+                {t.nav.signIn}
               </Link>
               <Link href="/sign-up" className="btn-gold !py-2 !px-5 text-sm ml-1">
-                Start Free
+                {t.nav.startFree}
               </Link>
             </>
           )}
@@ -83,32 +88,35 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden border-t border-white/[0.06] glass px-4 py-3 space-y-1">
           <Link href="/agents" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Agents
+            {t.nav.agents}
           </Link>
           <Link href="/pricing" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            Pricing
+            {t.nav.pricing}
           </Link>
           {user ? (
             <>
               <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                Dashboard
+                {t.nav.dashboard}
               </Link>
               <form action="/auth/signout" method="post">
                 <button className="block w-full text-left px-3 py-2.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                  Sign Out
+                  {t.nav.signOut}
                 </button>
               </form>
             </>
           ) : (
             <>
               <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                Sign In
+                {t.nav.signIn}
               </Link>
               <Link href="/sign-up" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gold font-semibold hover:bg-gold/5 rounded-lg transition-all">
-                Start Free
+                {t.nav.startFree}
               </Link>
             </>
           )}
+          <div className="px-3 pt-1">
+            <LangToggle />
+          </div>
         </div>
       )}
     </nav>

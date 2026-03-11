@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
+import { useLang } from "@/lib/i18n/LanguageContext";
 
 type UsageData = {
   plan: string;
@@ -87,6 +88,7 @@ function setLS(key: string, value: boolean) {
 }
 
 export default function DashboardPage() {
+  const { t } = useLang();
   const [user, setUser] = useState<User | null>(null);
   const [agentStates, setAgentStates] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState({ dmCount: 0, scheduleCount: 0, activeAgents: 0 });
@@ -196,7 +198,7 @@ export default function DashboardPage() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
             <span style={{ fontSize: "28px" }}>🤖</span>
             <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, color: "#ffffff", margin: 0 }}>
-              My Agent Empire
+              {t.dashboard.title}
             </h1>
           </div>
           {user && (
@@ -225,7 +227,7 @@ export default function DashboardPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <h2 style={{ fontSize: "16px", fontWeight: 700, color: "#ffffff", margin: 0 }}>
-                This Month&apos;s Usage
+                {t.dashboard.usageTitle}
               </h2>
               {usageData && (
                 <span style={{
@@ -258,7 +260,7 @@ export default function DashboardPage() {
                   transition: "all 0.2s",
                 }}
               >
-                Upgrade Plan →
+                {t.dashboard.upgradePlan}
               </a>
             )}
           </div>
