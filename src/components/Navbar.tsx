@@ -46,6 +46,9 @@ export default function Navbar() {
               <Link href="/dashboard" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
                 {t.nav.dashboard}
               </Link>
+              <Link href="/studio" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+                {t.nav.studio}
+              </Link>
               <div className="w-px h-6 bg-white/10 mx-2" />
               <LangToggle />
               <form action="/auth/signout" method="post">
@@ -97,6 +100,9 @@ export default function Navbar() {
             <>
               <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
                 {t.nav.dashboard}
+              </Link>
+              <Link href="/studio" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
+                {t.nav.studio}
               </Link>
               <form action="/auth/signout" method="post">
                 <button className="block w-full text-left px-3 py-2.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all">

@@ -92,6 +92,30 @@
       "namedRegex": "^/api/purchases(?:/)?$"
     },
     {
+      "page": "/api/studio/compliance",
+      "regex": "^/api/studio/compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/studio/compliance(?:/)?$"
+    },
+    {
+      "page": "/api/studio/distro",
+      "regex": "^/api/studio/distro(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/studio/distro(?:/)?$"
+    },
+    {
+      "page": "/api/studio/models",
+      "regex": "^/api/studio/models(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/studio/models(?:/)?$"
+    },
+    {
+      "page": "/api/studio/productions",
+      "regex": "^/api/studio/productions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/studio/productions(?:/)?$"
+    },
+    {
       "page": "/api/upload",
       "regex": "^/api/upload(?:/)?$",
       "routeKeys": {},
@@ -156,6 +180,24 @@
       "regex": "^/sign\\-up(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/sign\\-up(?:/)?$"
+    },
+    {
+      "page": "/studio",
+      "regex": "^/studio(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/studio(?:/)?$"
+    },
+    {
+      "page": "/studio/distro",
+      "regex": "^/studio/distro(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/studio/distro(?:/)?$"
+    },
+    {
+      "page": "/studio/models",
+      "regex": "^/studio/models(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/studio/models(?:/)?$"
     },
     {
       "page": "/subscribe",
