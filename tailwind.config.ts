@@ -9,19 +9,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#0a0a0a",
-        surface: "#141414",
-        "surface-2": "#1e1e1e",
-        border: "#2a2a2a",
+        bg: "#050505",
+        surface: "#111111",
+        "surface-2": "#1a1a1a",
+        border: "#252525",
         gold: {
-          DEFAULT: "#d4a843",
-          light: "#e8c56a",
-          dark: "#a07830",
+          DEFAULT: "#e4b84d",
+          light: "#f0d078",
+          dark: "#b8922e",
+        },
+        accent: {
+          purple: "#a855f7",
+          pink: "#ec4899",
+          blue: "#3b82f6",
         },
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         display: ["Playfair Display", "Georgia", "serif"],
+      },
+      backgroundImage: {
+        "hero-glow": "radial-gradient(ellipse at center, rgba(228,184,77,0.12) 0%, transparent 70%)",
       },
     },
   },

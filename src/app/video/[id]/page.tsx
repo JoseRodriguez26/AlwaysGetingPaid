@@ -40,39 +40,61 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Video Player */}
-      <VideoPlayer
-        src={hasPurchased ? video.full_video_url : video.preview_url}
-        poster={video.thumbnail_url}
-      />
+      <div className="rounded-2xl overflow-hidden border border-border">
+        <VideoPlayer
+          src={hasPurchased ? video.full_video_url : video.preview_url}
+          poster={video.thumbnail_url}
+        />
+      </div>
 
       <div className="mt-8 space-y-6">
         <div>
+          <div className="flex items-center gap-3 mb-2">
+            {!hasPurchased && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gold/10 text-gold border border-gold/20">
+                Preview
+              </span>
+            )}
+            {video.duration && (
+              <span className="text-xs text-gray-500">{video.duration}</span>
+            )}
+          </div>
           <h1 className="text-2xl md:text-3xl font-display font-bold text-white">
             {video.title}
           </h1>
-          {video.duration && (
-            <p className="text-sm text-gray-500 mt-1">Duration: {video.duration}</p>
-          )}
         </div>
 
-        {video.description && <p className="text-gray-400">{video.description}</p>}
+        {video.description && (
+          <p className="text-gray-400 leading-relaxed">{video.description}</p>
+        )}
 
         {hasPurchased ? (
-          <div className="card border-green-800 bg-green-900/20">
-            <p className="text-green-400 font-semibold">
-              You own this video. Enjoy the full version above!
-            </p>
+          <div className="card border-green-500/20 bg-green-500/[0.03]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-green-400 font-semibold">You own this video</p>
+                <p className="text-sm text-gray-500">Enjoy the full version above</p>
+              </div>
+            </div>
           </div>
         ) : (
           <PurchaseSection video={video} isLoggedIn={!!user} />
         )}
       </div>
 
-      <div className="mt-8">
-        <Link href="/" className="text-gold hover:text-gold-light transition-colors">
-          &larr; Back to all videos
+      <div className="mt-10">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to all videos
         </Link>
       </div>
     </div>

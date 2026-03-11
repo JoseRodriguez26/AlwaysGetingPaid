@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase-server";
+import { checkAndIncrementUsage, TIER_NAMES } from "@/lib/usage";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -9,6 +10,15 @@ export async function POST(req: NextRequest) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const usage = await checkAndIncrementUsage(user.id, "analytics");
+    if (!usage.allowed) {
+      return NextResponse.json({
+        error: `Monthly analytics limit reached (${usage.used}/${usage.limit}) on ${TIER_NAMES[usage.plan as keyof typeof TIER_NAMES] ?? usage.plan} plan. Upgrade at /pricing`,
+        upgrade: true,
+        plan: usage.plan,
+      }, { status: 429 });
+    }
 
     // Pull real data from the DB
     const [videosRes, purchasesRes, dmLogsRes, scheduleRes] = await Promise.all([

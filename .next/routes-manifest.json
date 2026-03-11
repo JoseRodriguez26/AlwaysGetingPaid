@@ -22,14 +22,6 @@
   },
   "dynamicRoutes": [
     {
-      "page": "/photos/[id]",
-      "regex": "^/photos/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "nxtPid": "nxtPid"
-      },
-      "namedRegex": "^/photos/(?<nxtPid>[^/]+?)(?:/)?$"
-    },
-    {
       "page": "/video/[id]",
       "regex": "^/video/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -64,22 +56,70 @@
       "namedRegex": "^/2257(?:/)?$"
     },
     {
-      "page": "/about",
-      "regex": "^/about(?:/)?$",
+      "page": "/agents",
+      "regex": "^/agents(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/about(?:/)?$"
+      "namedRegex": "^/agents(?:/)?$"
     },
     {
-      "page": "/api/webhooks/ccbill",
-      "regex": "^/api/webhooks/ccbill(?:/)?$",
+      "page": "/api/agents/analytics",
+      "regex": "^/api/agents/analytics(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/api/webhooks/ccbill(?:/)?$"
+      "namedRegex": "^/api/agents/analytics(?:/)?$"
     },
     {
-      "page": "/content",
-      "regex": "^/content(?:/)?$",
+      "page": "/api/agents/dm",
+      "regex": "^/api/agents/dm(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/content(?:/)?$"
+      "namedRegex": "^/api/agents/dm(?:/)?$"
+    },
+    {
+      "page": "/api/agents/scheduler",
+      "regex": "^/api/agents/scheduler(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/agents/scheduler(?:/)?$"
+    },
+    {
+      "page": "/api/agents/settings",
+      "regex": "^/api/agents/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/agents/settings(?:/)?$"
+    },
+    {
+      "page": "/api/purchases",
+      "regex": "^/api/purchases(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/purchases(?:/)?$"
+    },
+    {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
+    },
+    {
+      "page": "/api/usage",
+      "regex": "^/api/usage(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/usage(?:/)?$"
+    },
+    {
+      "page": "/api/videos",
+      "regex": "^/api/videos(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/videos(?:/)?$"
+    },
+    {
+      "page": "/auth/callback",
+      "regex": "^/auth/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/callback(?:/)?$"
+    },
+    {
+      "page": "/auth/signout",
+      "regex": "^/auth/signout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/signout(?:/)?$"
     },
     {
       "page": "/dashboard",
@@ -92,6 +132,12 @@
       "regex": "^/dmca(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dmca(?:/)?$"
+    },
+    {
+      "page": "/pricing",
+      "regex": "^/pricing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pricing(?:/)?$"
     },
     {
       "page": "/privacy",

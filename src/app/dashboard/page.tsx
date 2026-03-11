@@ -4,6 +4,61 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 
+type UsageData = {
+  plan: string;
+  month: string;
+  dm:        { used: number; limit: number | string };
+  schedule:  { used: number; limit: number | string };
+  analytics: { used: number; limit: number | string };
+};
+
+const TIER_NAMES: Record<string, string> = {
+  free: "Free",
+  starter: "Starter",
+  pro: "Pro",
+  empire: "Empire",
+};
+
+function UsageBar({ label, used, limit }: { label: string; used: number; limit: number | string }) {
+  const isUnlimited = limit === "Unlimited";
+  const pct = isUnlimited ? 0 : Math.min(100, (used / (limit as number)) * 100);
+  const isNearLimit = !isUnlimited && pct >= 90;
+  const barColor = isNearLimit ? "#ff4444" : "#d4a017";
+
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+        <span style={{ fontSize: "13px", color: "#aaaacc", fontWeight: 600 }}>{label}</span>
+        <span style={{ fontSize: "12px", color: isNearLimit ? "#ff4444" : "#666688", fontFamily: "monospace" }}>
+          {used} / {isUnlimited ? "Unlimited" : limit} used
+        </span>
+      </div>
+      <div style={{
+        height: "6px", borderRadius: "4px",
+        background: "rgba(255,255,255,0.07)",
+        overflow: "hidden",
+      }}>
+        {!isUnlimited && (
+          <div style={{
+            height: "100%",
+            width: `${pct}%`,
+            borderRadius: "4px",
+            background: barColor,
+            transition: "width 0.6s ease",
+            boxShadow: isNearLimit ? `0 0 8px ${barColor}88` : "none",
+          }} />
+        )}
+        {isUnlimited && (
+          <div style={{
+            height: "100%", width: "100%", borderRadius: "4px",
+            background: "linear-gradient(90deg, #d4a017, #f0c040)",
+          }} />
+        )}
+      </div>
+    </div>
+  );
+}
+
 const AGENTS = [
   { id: "aria7",   name: "ARIA-7",   type: "Fan DM Agent",    emoji: "💬", color: "#ff3388", desc: "Replies to fans 24/7 in your voice" },
   { id: "shieldx", name: "SHIELD-X", type: "Content Guard",   emoji: "🛡️", color: "#00ffcc", desc: "Blocks leaks, deepfakes & violations" },
@@ -36,6 +91,8 @@ export default function DashboardPage() {
   const [agentStates, setAgentStates] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState({ dmCount: 0, scheduleCount: 0, activeAgents: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [usageData, setUsageData] = useState<UsageData | null>(null);
+  const [loadingUsage, setLoadingUsage] = useState(true);
 
   // Load user
   useEffect(() => {
@@ -54,6 +111,25 @@ export default function DashboardPage() {
       initial[a.id] = getLS(`agent_${a.id}`, a.id === "aria7" || a.id === "muse3");
     });
     setAgentStates(initial);
+  }, []);
+
+  // Load usage data from API
+  useEffect(() => {
+    async function loadUsage() {
+      setLoadingUsage(true);
+      try {
+        const res = await fetch("/api/usage");
+        if (res.ok) {
+          const data = await res.json();
+          setUsageData(data);
+        }
+      } catch {
+        // silently fail
+      } finally {
+        setLoadingUsage(false);
+      }
+    }
+    loadUsage();
   }, []);
 
   // Load stats from API
@@ -127,6 +203,79 @@ export default function DashboardPage() {
             <p style={{ color: "#444466", fontSize: "13px", marginLeft: "40px" }}>
               {user.email}
             </p>
+          )}
+        </div>
+
+        {/* Usage Card */}
+        <div style={{
+          background: "rgba(212,160,23,0.04)",
+          border: "1px solid rgba(212,160,23,0.35)",
+          borderRadius: "20px",
+          padding: "28px 32px",
+          marginBottom: "36px",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+            background: "linear-gradient(90deg, transparent, #d4a017, transparent)",
+          }} />
+
+          {/* Header row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <h2 style={{ fontSize: "16px", fontWeight: 700, color: "#ffffff", margin: 0 }}>
+                This Month&apos;s Usage
+              </h2>
+              {usageData && (
+                <span style={{
+                  fontSize: "11px", fontWeight: 700,
+                  padding: "3px 10px", borderRadius: "20px",
+                  background: usageData.plan === "free" ? "rgba(100,100,130,0.3)" : "rgba(212,160,23,0.2)",
+                  color: usageData.plan === "free" ? "#888899" : "#d4a017",
+                  border: `1px solid ${usageData.plan === "free" ? "rgba(100,100,130,0.3)" : "rgba(212,160,23,0.3)"}`,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}>
+                  {TIER_NAMES[usageData.plan] ?? usageData.plan}
+                </span>
+              )}
+              {loadingUsage && !usageData && (
+                <span style={{ fontSize: "11px", color: "#444466" }}>Loading...</span>
+              )}
+            </div>
+            {usageData && usageData.plan !== "empire" && (
+              <a
+                href="/pricing"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "6px",
+                  fontSize: "12px", fontWeight: 700,
+                  color: "#d4a017",
+                  background: "rgba(212,160,23,0.1)",
+                  border: "1px solid rgba(212,160,23,0.35)",
+                  borderRadius: "10px", padding: "8px 16px",
+                  textDecoration: "none",
+                  transition: "all 0.2s",
+                }}
+              >
+                Upgrade Plan →
+              </a>
+            )}
+          </div>
+
+          {/* Progress bars */}
+          {usageData ? (
+            <>
+              <UsageBar label="Fan DMs"           used={usageData.dm.used}        limit={usageData.dm.limit} />
+              <UsageBar label="Post Schedules"    used={usageData.schedule.used}  limit={usageData.schedule.limit} />
+              <UsageBar label="Analytics Reports" used={usageData.analytics.used} limit={usageData.analytics.limit} />
+            </>
+          ) : (
+            <div style={{ height: "80px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: "13px", color: "#444466" }}>
+                {loadingUsage ? "Loading usage data..." : "Could not load usage data"}
+              </span>
+            </div>
           )}
         </div>
 

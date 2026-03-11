@@ -66,11 +66,15 @@ self.__SERVER_FILES_MANIFEST={
       "remotePatterns": [
         {
           "protocol": "https",
-          "hostname": "*.r2.cloudflarestorage.com"
+          "hostname": "**.supabase.co"
         },
         {
           "protocol": "https",
-          "hostname": "*.b-cdn.net"
+          "hostname": "**.r2.cloudflarestorage.com"
+        },
+        {
+          "protocol": "https",
+          "hostname": "**.b-cdn.net"
         }
       ],
       "qualities": [
