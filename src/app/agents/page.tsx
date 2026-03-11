@@ -20,41 +20,41 @@ const C = {
 
 type AgentId = "aria7" | "muse3" | "prism";
 
-const AGENTS = [
-  {
-    id: "aria7" as AgentId,
-    name: "ARIA-7",
-    type: "Fan DM Agent",
-    avatar: "🤖",
-    color: C.pink,
-    desc: "Replies to fan DMs 24/7 in your voice using Claude Opus. Converts fans into buyers.",
-    price: "$149/mo value",
-    stats: ["DM Management", "Voice Matching", "Upsell Prompts", "Tip Responses"],
-  },
-  {
-    id: "muse3" as AgentId,
-    name: "MUSE-3",
-    type: "Content Scheduler",
-    avatar: "📅",
-    color: C.purple,
-    desc: "Generates optimized captions and finds peak posting times across Twitter, Reddit, and more.",
-    price: "$79/mo value",
-    stats: ["Peak Time Analysis", "Auto Captions", "Hashtag Gen", "Multi-Platform"],
-  },
-  {
-    id: "prism" as AgentId,
-    name: "PRISM",
-    type: "Revenue Analytics",
-    avatar: "📊",
-    color: C.blue,
-    desc: "Analyzes your real revenue, conversion rates, and fan behavior. Gives you a weekly strategy.",
-    price: "$199/mo value",
-    stats: ["Revenue Tracking", "Churn Prediction", "Strategy Reports", "Growth Gaps"],
-  },
-];
-
 export default function AgentsPage() {
   const { t } = useLang();
+
+  const AGENTS = [
+    {
+      id: "aria7" as AgentId,
+      name: "ARIA-7",
+      type: t.agents.aria.role,
+      avatar: "🤖",
+      color: C.pink,
+      desc: t.agents.aria.desc,
+      price: "$149/mo value",
+      stats: ["DM Management", "Voice Matching", "Upsell Prompts", "Tip Responses"],
+    },
+    {
+      id: "muse3" as AgentId,
+      name: "MUSE-3",
+      type: t.agents.muse.role,
+      avatar: "📅",
+      color: C.purple,
+      desc: t.agents.muse.desc,
+      price: "$79/mo value",
+      stats: ["Peak Time Analysis", "Auto Captions", "Hashtag Gen", "Multi-Platform"],
+    },
+    {
+      id: "prism" as AgentId,
+      name: "PRISM",
+      type: t.agents.prism.role,
+      avatar: "📊",
+      color: C.blue,
+      desc: t.agents.prism.desc,
+      price: "$199/mo value",
+      stats: ["Revenue Tracking", "Churn Prediction", "Strategy Reports", "Growth Gaps"],
+    },
+  ];
   const [tab, setTab] = useState<AgentId | "overview">("overview");
   const [notif, setNotif] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [configs, setConfigs] = useState<Record<string, any>>({});
@@ -138,7 +138,7 @@ export default function AgentsPage() {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 4, marginBottom: 28, background: C.card, borderRadius: 12, padding: 4, width: "fit-content", border: `1px solid ${C.border}` }}>
-          {[{ id: "overview", label: "Overview" }, ...AGENTS.map(a => ({ id: a.id, label: a.name }))].map(tab_ => (
+          {[{ id: "overview", label: t.agents.tabs.overview }, ...AGENTS.map(a => ({ id: a.id, label: a.name }))].map(tab_ => (
             <button key={tab_.id} onClick={() => setTab(tab_.id as any)} style={{
               padding: "8px 20px", borderRadius: 8, border: "none", cursor: "pointer",
               background: tab === tab_.id ? `${C.neon}15` : "transparent",
@@ -192,7 +192,7 @@ export default function AgentsPage() {
                         width: "100%", padding: "9px", borderRadius: 9, border: "none", cursor: "pointer",
                         background: `linear-gradient(135deg, ${agent.color}cc, ${agent.color}99)`,
                         color: "#fff", fontSize: 13, fontWeight: 700,
-                      }}>Configure {agent.name} →</button>
+                      }}>{t.agents.configure} {agent.name} →</button>
                     </div>
                   </div>
                 );
@@ -330,7 +330,7 @@ function Aria7Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
             📨 DM Log <span style={{ fontSize: 12, color: C.muted, fontWeight: 400 }}>({dmLogs.length})</span>
           </div>
           {dmLogs.length === 0
-            ? <p style={{ color: C.muted, fontSize: 13 }}>No DMs yet. Test one above.</p>
+            ? <p style={{ color: C.muted, fontSize: 13 }}>{t.agents.aria.noDms}</p>
             : <div style={{ maxHeight: 280, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
               {dmLogs.slice(0, 10).map((log, i) => (
                 <div key={i} style={{ background: C.surface, borderRadius: 10, padding: "10px 12px" }}>
@@ -429,7 +429,7 @@ function Muse3Panel({ config, onSave, toast }: { config: any; onSave: (e: boolea
         <div style={{ marginTop: 20, paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>🚀 Generate Schedule</div>
           <textarea value={contentDesc} onChange={e => setContentDesc(e.target.value)}
-            placeholder="Describe your upcoming content... e.g. 'New beach photoshoot, teasing bikini pics'"
+            placeholder={t.agents.muse.inputPlaceholder2}
             rows={3} style={{
               width: "100%", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
               color: C.text, padding: "10px 14px", fontSize: 13, resize: "none", marginBottom: 10,

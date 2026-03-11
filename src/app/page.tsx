@@ -1,3 +1,7 @@
+"use client";
+
+import { useLang } from "@/lib/i18n/LanguageContext";
+
 // Agent data for character cards
 const agents = [
   {
@@ -570,6 +574,8 @@ const agents = [
 ];
 
 export default function HomePage() {
+  const { t } = useLang();
+
   return (
     <div style={{ background: "#08070e", minHeight: "100vh", color: "#e5e5e5", overflow: "hidden" }}>
 
@@ -602,7 +608,7 @@ export default function HomePage() {
             borderRadius: "999px", padding: "6px 16px", marginBottom: "32px",
           }}>
             <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#00ffcc", display: "inline-block", animation: "pulse 2s ease-in-out infinite", boxShadow: "0 0 8px #00ffcc" }} />
-            <span style={{ color: "#00ffcc", fontSize: "11px", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase" }}>AI Agent Platform for Creators</span>
+            <span style={{ color: "#00ffcc", fontSize: "11px", fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase" }}>{t.hero.badge}</span>
           </div>
 
           {/* Headline */}
@@ -617,7 +623,7 @@ export default function HomePage() {
             backgroundClip: "text",
             letterSpacing: "-0.02em",
           }}>
-            Your AI Crew.
+            {t.hero.title1}
           </h1>
           <h1 style={{
             fontSize: "clamp(2.8rem, 8vw, 6.5rem)",
@@ -630,12 +636,12 @@ export default function HomePage() {
             backgroundClip: "text",
             letterSpacing: "-0.02em",
           }}>
-            Always Working.
+            {t.hero.title2}
           </h1>
 
           {/* Subtext */}
           <p style={{ color: "#9999cc", fontSize: "clamp(1rem, 2.5vw, 1.25rem)", maxWidth: "560px", margin: "0 auto 48px", lineHeight: 1.7 }}>
-            8 specialized AI agents that handle your DMs, schedule posts, protect your content, and grow your revenue — 24/7 on autopilot.
+            {t.hero.subtitle}
           </p>
 
           {/* CTAs */}
@@ -648,7 +654,7 @@ export default function HomePage() {
               boxShadow: "0 0 30px rgba(0,255,204,0.3), 0 8px 24px rgba(0,0,0,0.4)",
               transition: "all 0.3s",
             }}>
-              <span>🤖</span> Deploy Your First Agent
+              <span>🤖</span> {t.hero.cta1}
             </a>
             <a href="/agents" style={{
               display: "inline-flex", alignItems: "center", gap: "8px",
@@ -658,7 +664,7 @@ export default function HomePage() {
               border: "1px solid rgba(170,85,255,0.5)",
               transition: "all 0.3s",
             }}>
-              See All Agents →
+              {t.hero.cta2} →
             </a>
           </div>
         </div>
@@ -679,10 +685,10 @@ export default function HomePage() {
       }}>
         <div style={{ maxWidth: "900px", margin: "0 auto", display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "24px" }}>
           {[
-            { value: "500+", label: "Creators" },
-            { value: "2.4M", label: "DMs Handled" },
+            { value: "500+", label: t.hero.stat4 },
+            { value: "2.4M", label: t.hero.stat1 },
             { value: "99.97%", label: "Uptime" },
-            { value: "$1.2M", label: "Revenue Generated" },
+            { value: "$1.2M", label: t.hero.stat2 },
           ].map((stat) => (
             <div key={stat.label} style={{ textAlign: "center" }}>
               <div style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 800, color: "#00ffcc", letterSpacing: "-0.02em" }}>{stat.value}</div>
@@ -817,7 +823,7 @@ export default function HomePage() {
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
               marginBottom: "12px",
             }}>
-              Up and Running in Minutes
+              {t.hero.howItWorks}
             </h2>
             <p style={{ color: "#666688", fontSize: "15px" }}>Three steps to a fully automated creator business</p>
           </div>
@@ -907,7 +913,7 @@ export default function HomePage() {
               padding: "14px 36px", borderRadius: "12px", textDecoration: "none",
               boxShadow: "0 0 30px rgba(170,85,255,0.35), 0 8px 24px rgba(0,0,0,0.4)",
             }}>
-              🚀 Start Free Today
+              🚀 {t.hero.getStarted}
             </a>
             <a href="/pricing" style={{
               display: "inline-flex", alignItems: "center",
@@ -916,7 +922,7 @@ export default function HomePage() {
               padding: "14px 28px", borderRadius: "12px", textDecoration: "none",
               border: "1px solid rgba(255,255,255,0.15)",
             }}>
-              View Pricing
+              {t.hero.cta2}
             </a>
           </div>
         </div>

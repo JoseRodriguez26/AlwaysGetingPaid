@@ -21,14 +21,19 @@ export const translations = {
       stat2: "Avg Revenue Boost",
       stat3: "Time Saved/Week",
       stat4: "Creators Active",
+      howItWorks: "How It Works",
+      agentTeam: "Your AI Agent Team",
+      getStarted: "Get Started Free",
     },
     agents: {
       pageTitle: "AI Agent Dashboard",
       pageSubtitle: "Your AI team is working 24/7",
+      configure: "Configure",
       tabs: {
         dm: "DM Automation",
         scheduler: "Content Scheduler",
         analytics: "Analytics",
+        overview: "Overview",
       },
       aria: {
         name: "ARIA-7",
@@ -41,6 +46,7 @@ export const translations = {
         generateBtn: "Generate Response",
         generatingBtn: "Generating...",
         responseLabel: "ARIA-7 Response:",
+        noDms: "No DMs yet. Test one above.",
       },
       muse: {
         name: "MUSE-3",
@@ -48,6 +54,7 @@ export const translations = {
         desc: "Creates platform-optimized captions and finds peak posting times",
         inputLabel: "Describe your content",
         inputPlaceholder: "e.g. New photoshoot in red lingerie, very playful mood...",
+        inputPlaceholder2: "Describe your upcoming content... e.g. 'New beach photoshoot, teasing bikini pics'",
         platformsLabel: "Platforms",
         daysLabel: "Days ahead",
         generateBtn: "Generate Schedule",
@@ -109,14 +116,19 @@ export const translations = {
       stat2: "Aumento Promedio de Ingresos",
       stat3: "Tiempo Ahorrado/Semana",
       stat4: "Creadoras Activas",
+      howItWorks: "Cómo Funciona",
+      agentTeam: "Tu Equipo de Agentes IA",
+      getStarted: "Empieza Gratis",
     },
     agents: {
       pageTitle: "Panel de Agentes IA",
       pageSubtitle: "Tu equipo de IA trabaja 24/7",
+      configure: "Configurar",
       tabs: {
         dm: "Automatización DM",
         scheduler: "Programador de Contenido",
         analytics: "Analíticas",
+        overview: "General",
       },
       aria: {
         name: "ARIA-7",
@@ -129,6 +141,7 @@ export const translations = {
         generateBtn: "Generar Respuesta",
         generatingBtn: "Generando...",
         responseLabel: "Respuesta de ARIA-7:",
+        noDms: "Sin DMs aún. Prueba uno arriba.",
       },
       muse: {
         name: "MUSE-3",
@@ -136,6 +149,7 @@ export const translations = {
         desc: "Crea captions optimizados por plataforma y encuentra los mejores horarios",
         inputLabel: "Describe tu contenido",
         inputPlaceholder: "ej. Nueva sesión de fotos en ropa interior roja, ambiente muy juguetón...",
+        inputPlaceholder2: "Describe tu próximo contenido... ej. 'Nueva sesión en la playa, fotos en bikini'",
         platformsLabel: "Plataformas",
         daysLabel: "Días adelante",
         generateBtn: "Generar Programa",
