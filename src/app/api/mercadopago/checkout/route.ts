@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       accessToken: process.env.MP_ACCESS_TOKEN ?? "",
     });
 
-    const origin = req.headers.get("origin") ?? "https://calientehubxxx.com";
+    const origin = req.headers.get("origin") ?? "https://www.calientehubxxx.com";
 
     const preference = new Preference(client);
     const result = await preference.create({

@@ -10,27 +10,12 @@ interface Props {
 }
 
 export default function CheckoutButton({ planId, planName, price, className }: Props) {
-  const [loading, setLoading] = useState<"stripe" | "mp" | null>(null);
+  const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { lang } = useLang();
 
-  const handleStripe = async () => {
-    setLoading("stripe");
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
-      });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else alert(data.error ?? "Error creating checkout");
-    } catch { alert("Network error"); }
-    setLoading(null);
-  };
-
   const handleMP = async () => {
-    setLoading("mp");
+    setLoading(true);
     try {
       const res = await fetch("/api/mercadopago/checkout", {
         method: "POST",
@@ -41,7 +26,7 @@ export default function CheckoutButton({ planId, planName, price, className }: P
       if (data.url) window.location.href = data.url;
       else alert(data.error ?? "Error creating checkout");
     } catch { alert("Network error"); }
-    setLoading(null);
+    setLoading(false);
   };
 
   return (
@@ -64,49 +49,53 @@ export default function CheckoutButton({ planId, planName, price, className }: P
             borderRadius: 16, padding: 32, maxWidth: 400, width: "100%"
           }} onClick={e => e.stopPropagation()}>
             <h3 style={{ color: "#e8e6f0", fontSize: 20, fontWeight: 700, margin: "0 0 6px" }}>
-              {lang === "es" ? "Elige tu método de pago" : "Choose Payment Method"}
+              {lang === "es" ? "Confirmar suscripción" : "Confirm Subscription"}
             </h3>
             <p style={{ color: "#7875a0", fontSize: 14, margin: "0 0 24px" }}>
               {planName} — ${price}/mo
             </p>
 
-            {/* Stripe */}
-            <button
-              onClick={handleStripe}
-              disabled={loading !== null}
-              style={{
-                width: "100%", padding: "14px 20px", borderRadius: 10, border: "1px solid rgba(99,102,241,0.4)",
-                background: loading === "stripe" ? "rgba(99,102,241,0.3)" : "rgba(99,102,241,0.15)",
-                color: "#a5b4fc", fontSize: 15, fontWeight: 600, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 12, marginBottom: 12,
-                transition: "all 0.2s"
-              }}
-            >
-              <span style={{ fontSize: 22 }}>💳</span>
-              <div style={{ textAlign: "left" }}>
-                <div>{loading === "stripe" ? (lang === "es" ? "Procesando..." : "Processing...") : (lang === "es" ? "Tarjeta de crédito / débito" : "Credit / Debit Card")}</div>
-                <div style={{ fontSize: 12, color: "#7875a0" }}>{lang === "es" ? "Visa, Mastercard, Amex — en todo el mundo" : "Visa, Mastercard, Amex — Worldwide"}</div>
-              </div>
-            </button>
-
             {/* Mercado Pago */}
             <button
               onClick={handleMP}
-              disabled={loading !== null}
+              disabled={loading}
               style={{
                 width: "100%", padding: "14px 20px", borderRadius: 10, border: "1px solid rgba(0,180,90,0.4)",
-                background: loading === "mp" ? "rgba(0,180,90,0.3)" : "rgba(0,180,90,0.15)",
-                color: "#4ade80", fontSize: 15, fontWeight: 600, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 12, marginBottom: 20,
+                background: loading ? "rgba(0,180,90,0.3)" : "rgba(0,180,90,0.15)",
+                color: "#4ade80", fontSize: 15, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", gap: 12, marginBottom: 12,
                 transition: "all 0.2s"
               }}
             >
               <span style={{ fontSize: 22 }}>🏦</span>
               <div style={{ textAlign: "left" }}>
-                <div>{loading === "mp" ? (lang === "es" ? "Procesando..." : "Processing...") : "Mercado Pago"}</div>
-                <div style={{ fontSize: 12, color: "#7875a0" }}>{lang === "es" ? "México 🇲🇽 Brasil 🇧🇷 Argentina 🇦🇷 Colombia 🇨🇴 + más" : "Mexico 🇲🇽 Brazil 🇧🇷 Argentina 🇦🇷 Colombia 🇨🇴 + more"}</div>
+                <div>{loading ? (lang === "es" ? "Procesando..." : "Processing...") : "Mercado Pago"}</div>
+                <div style={{ fontSize: 12, color: "#7875a0" }}>
+                  {lang === "es"
+                    ? "México 🇲🇽 Brasil 🇧🇷 Argentina 🇦🇷 Colombia 🇨🇴 + más"
+                    : "Mexico 🇲🇽 Brazil 🇧🇷 Argentina 🇦🇷 Colombia 🇨🇴 + more"}
+                </div>
               </div>
             </button>
+
+            {/* CCBill — coming soon */}
+            <div style={{
+              width: "100%", padding: "14px 20px", borderRadius: 10,
+              border: "1px solid rgba(99,102,241,0.25)",
+              background: "rgba(99,102,241,0.06)",
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 20,
+              opacity: 0.5,
+            }}>
+              <span style={{ fontSize: 22 }}>💳</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ color: "#a5b4fc", fontSize: 15, fontWeight: 600 }}>
+                  {lang === "es" ? "Tarjeta de crédito (CCBill)" : "Credit Card (CCBill)"}
+                </div>
+                <div style={{ fontSize: 12, color: "#7875a0" }}>
+                  {lang === "es" ? "Próximamente — USA 🇺🇸 y más" : "Coming soon — USA 🇺🇸 and more"}
+                </div>
+              </div>
+            </div>
 
             <button onClick={() => setShowModal(false)} style={{
               width: "100%", padding: "10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
