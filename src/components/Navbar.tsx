@@ -4,68 +4,59 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
-import { useLang } from "@/lib/i18n/LanguageContext";
-import LangToggle from "@/components/LangToggle";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { t } = useLang();
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass border-b border-white/[0.06]">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl">🤖</span>
-          <span className="text-xl font-display font-bold text-white">
-            Caliente<span className="text-gold">AI</span>
+    <nav style={{
+      position: "fixed", top: 0, width: "100%", zIndex: 50,
+      background: "rgba(5,5,5,0.85)", backdropFilter: "blur(12px)",
+      borderBottom: "1px solid rgba(255,255,255,0.06)",
+    }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px", height: "64px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+        {/* Logo */}
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.02em" }}>
+            Caliente<span style={{ color: "#e4b84d" }}>Hub</span>
           </span>
         </Link>
 
-        {/* Desktop */}
-        <div className="hidden md:flex items-center gap-1">
-          <Link href="/agents" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            {t.nav.agents}
-          </Link>
-          <Link href="/pricing" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            {t.nav.pricing}
-          </Link>
+        {/* Desktop links */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {user ? (
             <>
-              <Link href="/dashboard" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                {t.nav.dashboard}
+              <Link href="/dashboard" style={{ padding: "8px 16px", color: "#aaaaaa", fontSize: "14px", textDecoration: "none", borderRadius: "8px" }}>
+                My Content
               </Link>
-              <Link href="/studio" className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                {t.nav.studio}
-              </Link>
-              <div className="w-px h-6 bg-white/10 mx-2" />
-              <LangToggle />
               <form action="/auth/signout" method="post">
-                <button className="px-4 py-2 text-sm text-gray-500 hover:text-white rounded-lg transition-all">
-                  {t.nav.signOut}
+                <button style={{ padding: "8px 16px", color: "#666655", fontSize: "14px", background: "none", border: "none", cursor: "pointer", borderRadius: "8px" }}>
+                  Sign Out
                 </button>
               </form>
             </>
           ) : (
             <>
-              <div className="w-px h-6 bg-white/10 mx-2" />
-              <LangToggle />
-              <Link href="/sign-in" className="px-4 py-2 text-sm text-gray-300 hover:text-white rounded-lg transition-all">
-                {t.nav.signIn}
+              <Link href="/sign-in" style={{ padding: "8px 16px", color: "#aaaaaa", fontSize: "14px", textDecoration: "none", borderRadius: "8px" }}>
+                Sign In
               </Link>
-              <Link href="/sign-up" className="btn-gold !py-2 !px-5 text-sm ml-1">
-                {t.nav.startFree}
+              <Link href="/sign-up" style={{
+                padding: "8px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: 700,
+                background: "linear-gradient(135deg, #f0d078, #e4b84d)",
+                color: "#050505", textDecoration: "none",
+              }}>
+                Join Now
               </Link>
             </>
           )}
@@ -74,57 +65,22 @@ export default function Navbar() {
         {/* Mobile toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-gray-300 p-2 hover:bg-white/5 rounded-lg transition-colors"
-          aria-label="Toggle menu"
+          style={{ display: "none", background: "none", border: "none", color: "#aaaaaa", cursor: "pointer", padding: "8px" }}
+          className="mobile-menu-btn"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {menuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {menuOpen
+              ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
           </svg>
         </button>
       </div>
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-white/[0.06] glass px-4 py-3 space-y-1">
-          <Link href="/agents" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            {t.nav.agents}
-          </Link>
-          <Link href="/pricing" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-            {t.nav.pricing}
-          </Link>
-          {user ? (
-            <>
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                {t.nav.dashboard}
-              </Link>
-              <Link href="/studio" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                {t.nav.studio}
-              </Link>
-              <form action="/auth/signout" method="post">
-                <button className="block w-full text-left px-3 py-2.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                  {t.nav.signOut}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                {t.nav.signIn}
-              </Link>
-              <Link href="/sign-up" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 text-gold font-semibold hover:bg-gold/5 rounded-lg transition-all">
-                {t.nav.startFree}
-              </Link>
-            </>
-          )}
-          <div className="px-3 pt-1">
-            <LangToggle />
-          </div>
-        </div>
-      )}
+      <style>{`
+        @media (max-width: 640px) {
+          .mobile-menu-btn { display: block !important; }
+        }
+      `}</style>
     </nav>
   );
 }

@@ -2,51 +2,44 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/[0.06] mt-20">
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
-          {/* Logo + tagline */}
+    <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: "80px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 20px" }}>
+
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "32px", marginBottom: "32px" }}>
+          {/* Logo */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">🤖</span>
-              <span className="text-lg font-display font-bold text-white">
-                Caliente<span className="text-gold">AI</span>
-              </span>
+            <div style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", marginBottom: "8px", letterSpacing: "-0.02em" }}>
+              Caliente<span style={{ color: "#e4b84d" }}>Hub</span>
             </div>
-            <p className="text-sm text-gray-500 max-w-xs">
-              The AI crew for adult content creators.
+            <p style={{ fontSize: "13px", color: "#444433", maxWidth: "220px", lineHeight: 1.6 }}>
+              Exclusive adult content. Members only.
             </p>
           </div>
 
-          {/* Nav links */}
-          <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-gray-600">
-            <div className="flex flex-col gap-2">
-              <p className="text-gray-400 font-medium text-xs uppercase tracking-widest mb-1">Platform</p>
-              <Link href="/agents" className="hover:text-gray-300 transition-colors">Agents</Link>
-              <Link href="/pricing" className="hover:text-gray-300 transition-colors">Pricing</Link>
-              <Link href="/dashboard" className="hover:text-gray-300 transition-colors">Dashboard</Link>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-gray-400 font-medium text-xs uppercase tracking-widest mb-1">Legal</p>
-              <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms</Link>
-              <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy</Link>
-              <Link href="/dmca" className="hover:text-gray-300 transition-colors">DMCA</Link>
-              <Link href="/2257" className="hover:text-gray-300 transition-colors">2257</Link>
-            </div>
+          {/* Legal links */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <p style={{ fontSize: "11px", color: "#555544", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "4px" }}>Legal</p>
+            {[
+              { href: "/terms", label: "Terms of Service" },
+              { href: "/privacy", label: "Privacy Policy" },
+              { href: "/dmca", label: "DMCA" },
+              { href: "/2257", label: "18 U.S.C. 2257" },
+            ].map(({ href, label }) => (
+              <Link key={href} href={href} style={{ fontSize: "13px", color: "#444433", textDecoration: "none" }}>
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
 
-        <div className="border-t border-white/[0.04] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-gray-600">
-              &copy; 2025 CalienteAI. All rights reserved.
-            </p>
-            <span className="text-[10px] text-red-400/80 border border-red-500/30 px-1.5 py-0.5 rounded font-bold">
-              18+
-            </span>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: "24px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span style={{ fontSize: "13px", color: "#333322" }}>© 2025 CalienteHub. All rights reserved.</span>
+            <span style={{ fontSize: "10px", color: "#ff6666", border: "1px solid rgba(255,80,80,0.3)", padding: "2px 6px", borderRadius: "4px", fontWeight: 700 }}>18+</span>
           </div>
-          <p className="text-xs text-gray-700">AI-powered automation for content creators</p>
+          <p style={{ fontSize: "12px", color: "#333322" }}>www.calientehubxxx.com</p>
         </div>
+
       </div>
     </footer>
   );
