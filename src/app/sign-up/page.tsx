@@ -26,92 +26,201 @@ export default function SignUpPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess(true);
-    }
+    if (error) setError(error.message);
+    else setSuccess(true);
     setLoading(false);
   };
 
-  if (success) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
-        <div className="max-w-sm w-full text-center">
-          <div className="card space-y-5">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-              <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-display font-bold text-white">Check Your Email</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              We sent a confirmation link to <strong className="text-white">{email}</strong>. Click it to activate your account.
-            </p>
-            <Link href="/sign-in" className="btn-outline w-full inline-block text-center">
-              Go to Sign In
-            </Link>
-          </div>
-        </div>
+  if (success) return (
+    <div style={styles.page}>
+      <div style={{ ...styles.box, textAlign: "center" }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
+        <h2 style={styles.title}>Check your email</h2>
+        <p style={styles.sub}>
+          We sent a confirmation link to <strong style={{ color: "#e5e5e5" }}>{email}</strong>.<br />
+          Click it to activate your account.
+        </p>
+        <Link href="/sign-in" style={styles.btnOutline}>Go to Sign In</Link>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="max-w-sm w-full">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center mb-4 shadow-lg shadow-gold/20">
-            <span className="text-black font-bold">CH</span>
-          </div>
-          <h1 className="text-2xl font-display font-bold text-white">Create Account</h1>
-          <p className="text-sm text-gray-500 mt-1">Get access to exclusive content</p>
+    <div style={styles.page}>
+      <div style={styles.box}>
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={styles.logo}>CH</div>
+          <h1 style={styles.title}>Create Account</h1>
+          <p style={styles.sub}>Get access to exclusive content</p>
         </div>
-        <form onSubmit={handleSubmit} className="card space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1.5">Email</label>
+
+        <form onSubmit={handleSubmit}>
+          <div style={styles.field}>
+            <label style={styles.label}>Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
-              className="input-field"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               placeholder="you@email.com"
+              style={styles.input}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1.5">Password</label>
+
+          <div style={styles.field}>
+            <label style={styles.label}>Password</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="input-field"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               placeholder="Minimum 8 characters"
+              style={styles.input}
             />
           </div>
+
           {error && (
-            <div className="bg-red-500/5 border border-red-500/20 rounded-xl px-4 py-3">
-              <p className="text-red-400 text-sm">{error}</p>
-            </div>
+            <div style={styles.errorBox}>{error}</div>
           )}
-          <button type="submit" disabled={loading} className="btn-gold w-full text-base py-3.5">
+
+          <button type="submit" disabled={loading} style={styles.btnRed}>
             {loading ? "Creating account..." : "Create Account"}
           </button>
-          <p className="text-center text-sm text-gray-500">
-            Already have an account?{" "}
-            <Link href="/sign-in" className="text-gold hover:text-gold-light font-medium">
-              Sign In
-            </Link>
-          </p>
         </form>
+
+        <p style={styles.footerText}>
+          Already have an account?{" "}
+          <Link href="/sign-in" style={styles.link}>Sign In</Link>
+        </p>
+
+        <p style={styles.legal}>
+          18+ only. By creating an account you confirm you are of legal age to view adult content.
+        </p>
       </div>
     </div>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    minHeight: "100vh",
+    background: "#0a0a0a",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "80px 20px",
+  },
+  box: {
+    width: "100%",
+    maxWidth: 420,
+    background: "#111111",
+    border: "1px solid #1e1e1e",
+    borderRadius: 4,
+    padding: "40px 36px",
+  },
+  logo: {
+    width: 52,
+    height: 52,
+    background: "#cc0000",
+    borderRadius: 4,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 18,
+    fontWeight: 900,
+    color: "#fff",
+    margin: "0 auto 20px",
+    letterSpacing: "0.05em",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 800,
+    color: "#ffffff",
+    margin: "0 0 6px",
+    textAlign: "center" as const,
+  },
+  sub: {
+    fontSize: 13,
+    color: "#555",
+    margin: "0 0 0",
+    textAlign: "center" as const,
+    lineHeight: 1.6,
+  },
+  field: { marginBottom: 18 },
+  label: {
+    display: "block",
+    fontSize: 12,
+    fontWeight: 700,
+    color: "#555",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.1em",
+    marginBottom: 8,
+  },
+  input: {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 4,
+    border: "1px solid #222",
+    background: "#0a0a0a",
+    color: "#e5e5e5",
+    fontSize: 14,
+    outline: "none",
+    boxSizing: "border-box" as const,
+  },
+  errorBox: {
+    padding: "10px 14px",
+    borderRadius: 4,
+    background: "rgba(204,0,0,0.08)",
+    border: "1px solid rgba(204,0,0,0.3)",
+    color: "#ff6666",
+    fontSize: 13,
+    marginBottom: 16,
+  },
+  btnRed: {
+    width: "100%",
+    padding: "13px",
+    borderRadius: 4,
+    background: "#cc0000",
+    color: "#fff",
+    fontWeight: 800,
+    fontSize: 14,
+    border: "none",
+    cursor: "pointer",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.08em",
+    marginTop: 4,
+    boxShadow: "0 0 20px rgba(204,0,0,0.25)",
+  },
+  btnOutline: {
+    display: "block",
+    width: "100%",
+    padding: "12px",
+    borderRadius: 4,
+    border: "1px solid #2a2a2a",
+    color: "#888",
+    fontSize: 14,
+    fontWeight: 600,
+    textAlign: "center" as const,
+    textDecoration: "none",
+    marginTop: 20,
+  },
+  footerText: {
+    textAlign: "center" as const,
+    fontSize: 13,
+    color: "#444",
+    marginTop: 24,
+  },
+  link: { color: "#cc0000", textDecoration: "none", fontWeight: 600 },
+  legal: {
+    fontSize: 11,
+    color: "#2a2a2a",
+    textAlign: "center" as const,
+    marginTop: 20,
+    lineHeight: 1.6,
+  },
+};
