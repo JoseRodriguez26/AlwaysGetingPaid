@@ -3,525 +3,252 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import { useLang } from "@/lib/i18n/LanguageContext";
 
-function PaymentBannerInner() {
+type Video = {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  thumbnail_url: string;
+  published: boolean;
+  created_at: string;
+};
+
+function SuccessBanner() {
   const searchParams = useSearchParams();
   const [show, setShow] = useState(false);
-
   useEffect(() => {
     if (searchParams.get("payment") === "success") {
       setShow(true);
-      const timer = setTimeout(() => setShow(false), 5000);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => setShow(false), 6000);
+      return () => clearTimeout(t);
     }
   }, [searchParams]);
-
   if (!show) return null;
   return (
     <div style={{
-      position: "fixed", top: "88px", left: "50%", transform: "translateX(-50%)",
-      zIndex: 9998, width: "100%", maxWidth: "600px", padding: "0 16px",
+      position: "fixed", top: 72, left: "50%", transform: "translateX(-50%)",
+      zIndex: 9999, width: "100%", maxWidth: 560, padding: "0 16px",
     }}>
       <div style={{
-        background: "linear-gradient(135deg, rgba(0,200,100,0.15), rgba(0,180,80,0.1))",
-        border: "1px solid rgba(0,200,100,0.5)",
-        borderRadius: "14px", padding: "16px 20px",
-        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
-        boxShadow: "0 8px 32px rgba(0,200,100,0.2)",
-        backdropFilter: "blur(8px)",
+        background: "rgba(0,180,80,0.12)", border: "1px solid rgba(0,180,80,0.4)",
+        borderRadius: 8, padding: "14px 20px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        color: "#4ade80", fontWeight: 600, fontSize: 15,
       }}>
-        <span style={{ fontSize: "15px", color: "#4ade80", fontWeight: 600 }}>
-          🎉 Payment successful! Your plan has been activated.
-        </span>
-        <button
-          onClick={() => setShow(false)}
-          style={{
-            background: "transparent", border: "none", color: "#4ade80",
-            fontSize: "18px", cursor: "pointer", lineHeight: 1, flexShrink: 0,
-          }}
-          aria-label="Dismiss"
-        >
-          ×
-        </button>
+        <span>🎉 Subscription activated! Enjoy full access.</span>
+        <button onClick={() => setShow(false)} style={{ background: "none", border: "none", color: "#4ade80", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
       </div>
     </div>
   );
-}
-
-function PaymentBanner() {
-  return (
-    <Suspense fallback={null}>
-      <PaymentBannerInner />
-    </Suspense>
-  );
-}
-
-type UsageData = {
-  plan: string;
-  month: string;
-  dm:        { used: number; limit: number | string };
-  schedule:  { used: number; limit: number | string };
-  analytics: { used: number; limit: number | string };
-};
-
-const TIER_NAMES: Record<string, string> = {
-  free: "Free",
-  starter: "Starter",
-  pro: "Pro",
-  empire: "Empire",
-};
-
-function UsageBar({ label, used, limit }: { label: string; used: number; limit: number | string }) {
-  const isUnlimited = limit === "Unlimited";
-  const pct = isUnlimited ? 0 : Math.min(100, (used / (limit as number)) * 100);
-  const isNearLimit = !isUnlimited && pct >= 90;
-  const barColor = isNearLimit ? "#ff4444" : "#d4a017";
-
-  return (
-    <div style={{ marginBottom: "16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-        <span style={{ fontSize: "13px", color: "#aaaacc", fontWeight: 600 }}>{label}</span>
-        <span style={{ fontSize: "12px", color: isNearLimit ? "#ff4444" : "#666688", fontFamily: "monospace" }}>
-          {used} / {isUnlimited ? "Unlimited" : limit} used
-        </span>
-      </div>
-      <div style={{
-        height: "6px", borderRadius: "4px",
-        background: "rgba(255,255,255,0.07)",
-        overflow: "hidden",
-      }}>
-        {!isUnlimited && (
-          <div style={{
-            height: "100%",
-            width: `${pct}%`,
-            borderRadius: "4px",
-            background: barColor,
-            transition: "width 0.6s ease",
-            boxShadow: isNearLimit ? `0 0 8px ${barColor}88` : "none",
-          }} />
-        )}
-        {isUnlimited && (
-          <div style={{
-            height: "100%", width: "100%", borderRadius: "4px",
-            background: "linear-gradient(90deg, #d4a017, #f0c040)",
-          }} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-const AGENTS = [
-  { id: "aria7",   name: "ARIA-7",   type: "Fan DM Agent",    emoji: "💬", color: "#ff3388", desc: "Replies to fans 24/7 in your voice" },
-  { id: "shieldx", name: "SHIELD-X", type: "Content Guard",   emoji: "🛡️", color: "#00ffcc", desc: "Blocks leaks, deepfakes & violations" },
-  { id: "muse3",   name: "MUSE-3",   type: "Post Scheduler",  emoji: "📅", color: "#aa55ff", desc: "Posts at peak times on every platform" },
-  { id: "prism",   name: "PRISM",    type: "Revenue Brain",   emoji: "📊", color: "#3388ff", desc: "Tracks your money and finds growth gaps" },
-  { id: "echov",   name: "ECHO-V",   type: "Voice Clone",     emoji: "🎙️", color: "#ffaa00", desc: "Sends personalized voice messages to fans" },
-  { id: "pixelq",  name: "PIXEL-Q",  type: "Media Gen",       emoji: "🎨", color: "#ff3388", desc: "Creates thumbnails and promo content" },
-  { id: "flux",    name: "FLUX",     type: "Price Optimizer", emoji: "💹", color: "#00ffcc", desc: "A/B tests pricing to maximize revenue" },
-  { id: "guard2",  name: "GUARD-2",  type: "DMCA Hunter",     emoji: "🔍", color: "#aa55ff", desc: "Finds pirated content and files takedowns" },
-];
-
-const QUICK_ACTIONS = [
-  { label: "Test a DM", href: "/agents#aria7", emoji: "💬", color: "#ff3388" },
-  { label: "Generate Schedule", href: "/agents#muse3", emoji: "📅", color: "#aa55ff" },
-  { label: "Run Analysis", href: "/agents#prism", emoji: "📊", color: "#3388ff" },
-];
-
-function getLS(key: string, fallback: boolean): boolean {
-  if (typeof window === "undefined") return fallback;
-  const v = localStorage.getItem(key);
-  return v === null ? fallback : v === "true";
-}
-
-function setLS(key: string, value: boolean) {
-  if (typeof window !== "undefined") localStorage.setItem(key, String(value));
 }
 
 export default function DashboardPage() {
-  const { t } = useLang();
   const [user, setUser] = useState<User | null>(null);
-  const [agentStates, setAgentStates] = useState<Record<string, boolean>>({});
-  const [stats, setStats] = useState({ dmCount: 0, scheduleCount: 0, activeAgents: 0 });
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [usageData, setUsageData] = useState<UsageData | null>(null);
-  const [loadingUsage, setLoadingUsage] = useState(true);
+  const [subscribed, setSubscribed] = useState<boolean | null>(null);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load user
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+    supabase.auth.getUser().then(async ({ data }) => {
+      setUser(data.user);
+      if (!data.user) { setLoading(false); return; }
 
-  // Load agent ON/OFF states from localStorage
-  useEffect(() => {
-    const initial: Record<string, boolean> = {};
-    AGENTS.forEach((a) => {
-      initial[a.id] = getLS(`agent_${a.id}`, a.id === "aria7" || a.id === "muse3");
-    });
-    setAgentStates(initial);
-  }, []);
+      // Check subscription
+      const { data: sub } = await supabase
+        .from("user_subscriptions")
+        .select("plan")
+        .eq("user_id", data.user.id)
+        .single();
 
-  // Load usage data from API
-  useEffect(() => {
-    async function loadUsage() {
-      setLoadingUsage(true);
-      try {
-        const res = await fetch("/api/usage");
-        if (res.ok) {
-          const data = await res.json();
-          setUsageData(data);
-        }
-      } catch {
-        // silently fail
-      } finally {
-        setLoadingUsage(false);
+      const isActive = !!(sub && sub.plan && sub.plan !== "free");
+      setSubscribed(isActive);
+
+      // Load videos if subscribed
+      if (isActive) {
+        const res = await fetch("/api/videos");
+        const json = await res.json();
+        setVideos(json.videos ?? []);
       }
-    }
-    loadUsage();
-  }, []);
-
-  // Load stats from API
-  useEffect(() => {
-    async function loadStats() {
-      setLoadingStats(true);
-      try {
-        const [dmRes, schedRes, settingsRes] = await Promise.all([
-          fetch("/api/agents/dm").catch(() => null),
-          fetch("/api/agents/scheduler").catch(() => null),
-          fetch("/api/agents/settings").catch(() => null),
-        ]);
-
-        let dmCount = 0;
-        let scheduleCount = 0;
-        let activeAgents = 0;
-
-        if (dmRes?.ok) {
-          const dmJson = await dmRes.json().catch(() => ({}));
-          dmCount = dmJson?.logs?.length ?? dmJson?.count ?? 0;
-        }
-        if (schedRes?.ok) {
-          const schedJson = await schedRes.json().catch(() => ({}));
-          scheduleCount = schedJson?.schedule?.length ?? schedJson?.count ?? 0;
-        }
-        if (settingsRes?.ok) {
-          const settingsJson = await settingsRes.json().catch(() => ({}));
-          activeAgents = settingsJson?.activeAgents ?? settingsJson?.count ?? 0;
-        }
-
-        setStats({ dmCount, scheduleCount, activeAgents });
-      } catch {
-        // silently fail — stats will show 0
-      } finally {
-        setLoadingStats(false);
-      }
-    }
-    loadStats();
-  }, []);
-
-  function toggleAgent(id: string) {
-    setAgentStates((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      setLS(`agent_${id}`, next[id]);
-      return next;
+      setLoading(false);
     });
-  }
+  }, []);
 
-  const activeCount = Object.values(agentStates).filter(Boolean).length;
+  if (loading) return (
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 36, height: 36, border: "3px solid #1a1a1a", borderTopColor: "#cc0000", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
-  const statCards = [
-    { label: "Active Agents", value: activeCount, suffix: `/ ${AGENTS.length}`, color: "#00ffcc", icon: "🤖" },
-    { label: "DMs This Month", value: loadingStats ? "—" : stats.dmCount.toLocaleString(), color: "#ff3388", icon: "💬" },
-    { label: "Posts Scheduled", value: loadingStats ? "—" : stats.scheduleCount.toLocaleString(), color: "#aa55ff", icon: "📅" },
-    { label: "Revenue Analyzed", value: loadingStats ? "—" : stats.activeAgents > 0 ? "Live" : "Offline", color: "#3388ff", icon: "📊" },
-  ];
+  if (!user) return (
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16, padding: 20, textAlign: "center" }}>
+      <div style={{ fontSize: 40 }}>🔒</div>
+      <h2 style={{ color: "#fff", fontWeight: 800, fontSize: 22, margin: 0 }}>Sign in to access content</h2>
+      <p style={{ color: "#555", margin: 0 }}>Create a free account or sign in to your existing one.</p>
+      <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+        <Link href="/sign-in" style={{ padding: "10px 24px", borderRadius: 6, border: "1px solid #2a2a2a", color: "#888", textDecoration: "none", fontSize: 14 }}>Sign In</Link>
+        <Link href="/sign-up" style={{ padding: "10px 24px", borderRadius: 6, background: "#cc0000", color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>Create Account</Link>
+      </div>
+    </div>
+  );
 
-  return (
-    <div style={{ background: "#08070e", minHeight: "100vh", color: "#e5e5e5", paddingTop: "80px" }}>
+  if (subscribed === false) return (
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#e5e5e5" }}>
+      <Suspense fallback={null}><SuccessBanner /></Suspense>
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "100px 20px", textAlign: "center" }}>
+        <div style={{ fontSize: 52, marginBottom: 24 }}>🎬</div>
+        <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff", marginBottom: 12 }}>
+          Subscribe to watch
+        </h1>
+        <p style={{ color: "#555", fontSize: 16, lineHeight: 1.7, marginBottom: 40 }}>
+          You&apos;re signed in as <strong style={{ color: "#888" }}>{user.email}</strong>.<br />
+          Subscribe to get unlimited access to all exclusive content.
+        </p>
 
-      {/* Payment success banner */}
-      <PaymentBanner />
-
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 24px" }}>
-
-        {/* Header */}
-        <div style={{ marginBottom: "40px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
-            <span style={{ fontSize: "28px" }}>🤖</span>
-            <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, color: "#ffffff", margin: 0 }}>
-              {t.dashboard.title}
-            </h1>
-          </div>
-          {user && (
-            <p style={{ color: "#444466", fontSize: "13px", marginLeft: "40px" }}>
-              {user.email}
-            </p>
-          )}
-        </div>
-
-        {/* Usage Card */}
-        <div style={{
-          background: "rgba(212,160,23,0.04)",
-          border: "1px solid rgba(212,160,23,0.35)",
-          borderRadius: "20px",
-          padding: "28px 32px",
-          marginBottom: "36px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0, height: "1px",
-            background: "linear-gradient(90deg, transparent, #d4a017, transparent)",
-          }} />
-
-          {/* Header row */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <h2 style={{ fontSize: "16px", fontWeight: 700, color: "#ffffff", margin: 0 }}>
-                {t.dashboard.usageTitle}
-              </h2>
-              {usageData && (
-                <span style={{
-                  fontSize: "11px", fontWeight: 700,
-                  padding: "3px 10px", borderRadius: "20px",
-                  background: usageData.plan === "free" ? "rgba(100,100,130,0.3)" : "rgba(212,160,23,0.2)",
-                  color: usageData.plan === "free" ? "#888899" : "#d4a017",
-                  border: `1px solid ${usageData.plan === "free" ? "rgba(100,100,130,0.3)" : "rgba(212,160,23,0.3)"}`,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                }}>
-                  {TIER_NAMES[usageData.plan] ?? usageData.plan}
-                </span>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 36 }}>
+          {[
+            { label: "Monthly", price: "$14.99", period: "/mo", planId: "starter", note: "Cancel anytime" },
+            { label: "Annual", price: "$99", period: "/yr", planId: "empire", note: "Save 45%", highlight: true },
+          ].map(plan => (
+            <div key={plan.planId} style={{
+              padding: "24px 28px", borderRadius: 8, minWidth: 180,
+              border: plan.highlight ? "2px solid #cc0000" : "1px solid #2a2a2a",
+              background: plan.highlight ? "rgba(204,0,0,0.06)" : "rgba(255,255,255,0.02)",
+              position: "relative",
+            }}>
+              {plan.highlight && (
+                <div style={{
+                  position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
+                  background: "#cc0000", color: "#fff", fontSize: 10, fontWeight: 800,
+                  padding: "2px 10px", borderRadius: 999, whiteSpace: "nowrap",
+                  textTransform: "uppercase", letterSpacing: "0.1em",
+                }}>Best Value</div>
               )}
-              {loadingUsage && !usageData && (
-                <span style={{ fontSize: "11px", color: "#444466" }}>Loading...</span>
-              )}
-            </div>
-            {usageData && usageData.plan !== "empire" && (
-              <a
-                href="/pricing"
+              <div style={{ color: "#666", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{plan.label}</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 4, justifyContent: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 30, fontWeight: 900, color: "#fff" }}>{plan.price}</span>
+                <span style={{ fontSize: 13, color: "#555", paddingBottom: 5 }}>{plan.period}</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#444", marginBottom: 16 }}>{plan.note}</div>
+              <button
+                onClick={async () => {
+                  const res = await fetch("/api/mercadopago/checkout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ planId: plan.planId }),
+                  });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                }}
                 style={{
-                  display: "inline-flex", alignItems: "center", gap: "6px",
-                  fontSize: "12px", fontWeight: 700,
-                  color: "#d4a017",
-                  background: "rgba(212,160,23,0.1)",
-                  border: "1px solid rgba(212,160,23,0.35)",
-                  borderRadius: "10px", padding: "8px 16px",
-                  textDecoration: "none",
-                  transition: "all 0.2s",
+                  width: "100%", padding: "10px", borderRadius: 5,
+                  background: plan.highlight ? "#cc0000" : "transparent",
+                  border: plan.highlight ? "none" : "1px solid #333",
+                  color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer",
+                  textTransform: "uppercase", letterSpacing: "0.06em",
                 }}
               >
-                {t.dashboard.upgradePlan}
-              </a>
-            )}
-          </div>
-
-          {/* Progress bars */}
-          {usageData ? (
-            <>
-              <UsageBar label="Fan DMs"           used={usageData.dm.used}        limit={usageData.dm.limit} />
-              <UsageBar label="Post Schedules"    used={usageData.schedule.used}  limit={usageData.schedule.limit} />
-              <UsageBar label="Analytics Reports" used={usageData.analytics.used} limit={usageData.analytics.limit} />
-            </>
-          ) : (
-            <div style={{ height: "80px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "13px", color: "#444466" }}>
-                {loadingUsage ? "Loading usage data..." : "Could not load usage data"}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Stats Row */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "16px",
-          marginBottom: "48px",
-        }}>
-          {statCards.map((s) => (
-            <div
-              key={s.label}
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: `1px solid ${s.color}33`,
-                borderRadius: "16px",
-                padding: "24px",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div style={{
-                position: "absolute", top: 0, left: 0, right: 0, height: "2px",
-                background: `linear-gradient(90deg, transparent, ${s.color}, transparent)`,
-              }} />
-              <div style={{ fontSize: "24px", marginBottom: "10px" }}>{s.icon}</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                <span style={{ fontSize: "28px", fontWeight: 800, color: s.color, letterSpacing: "-0.02em" }}>
-                  {s.value}
-                </span>
-                {s.suffix && (
-                  <span style={{ fontSize: "12px", color: "#444466" }}>{s.suffix}</span>
-                )}
-              </div>
-              <p style={{ fontSize: "11px", color: "#555577", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                {s.label}
-              </p>
+                Subscribe via Mercado Pago
+              </button>
             </div>
           ))}
         </div>
 
-        {/* Agent Grid */}
-        <div style={{ marginBottom: "48px" }}>
-          <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", marginBottom: "20px" }}>
-            Your Agents
-          </h2>
+        <p style={{ color: "#333", fontSize: 12 }}>
+          CCBill (credit card) coming soon — USA & worldwide
+        </p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e5e5e5" }}>
+      <Suspense fallback={null}><SuccessBanner /></Suspense>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 20px 60px" }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32, flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h1 style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: 0 }}>
+              Members <span style={{ color: "#cc0000" }}>Content</span>
+            </h1>
+            <p style={{ color: "#444", fontSize: 13, marginTop: 4 }}>{user.email}</p>
+          </div>
+          <span style={{
+            padding: "6px 14px", borderRadius: 999,
+            background: "rgba(0,180,80,0.1)", border: "1px solid rgba(0,180,80,0.3)",
+            color: "#4ade80", fontSize: 12, fontWeight: 700,
+          }}>✓ Active Subscriber</span>
+        </div>
+
+        {videos.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "80px 20px" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🎬</div>
+            <p style={{ color: "#444", fontSize: 16 }}>New content coming soon. Check back shortly!</p>
+          </div>
+        ) : (
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "16px",
+            gap: 20,
           }}>
-            {AGENTS.map((agent) => {
-              const isOn = agentStates[agent.id] ?? false;
-              return (
-                <div
-                  key={agent.id}
-                  style={{
-                    background: isOn
-                      ? `linear-gradient(145deg, ${agent.color}0d 0%, rgba(255,255,255,0.025) 100%)`
-                      : "rgba(255,255,255,0.02)",
-                    border: isOn ? `1px solid ${agent.color}44` : "1px solid rgba(255,255,255,0.07)",
-                    borderRadius: "16px",
-                    padding: "20px",
-                    transition: "all 0.3s",
-                    position: "relative",
-                  }}
+            {videos.map(video => (
+              <Link key={video.id} href={`/video/${video.id}`} style={{ textDecoration: "none" }}>
+                <div style={{
+                  background: "#111", border: "1px solid #1a1a1a",
+                  borderRadius: 6, overflow: "hidden",
+                  transition: "border-color 0.2s",
+                }}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "#cc0000"}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = "#1a1a1a"}
                 >
-                  {/* Active glow top */}
-                  {isOn && (
-                    <div style={{
-                      position: "absolute", top: 0, left: 0, right: 0, height: "1px",
-                      background: `linear-gradient(90deg, transparent, ${agent.color}, transparent)`,
-                    }} />
-                  )}
-
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "12px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      {/* Avatar + status dot */}
-                      <div style={{ position: "relative" }}>
-                        <div style={{
-                          width: "44px", height: "44px", borderRadius: "12px",
-                          background: `${agent.color}15`, border: `1px solid ${agent.color}33`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: "20px",
-                        }}>
-                          {agent.emoji}
-                        </div>
-                        {/* Pulsing status dot */}
-                        <div style={{
-                          position: "absolute", bottom: "-2px", right: "-2px",
-                          width: "10px", height: "10px", borderRadius: "50%",
-                          background: isOn ? "#00ff88" : "#333355",
-                          border: "2px solid #08070e",
-                          animation: isOn ? "pulse 2s ease-in-out infinite" : "none",
-                          boxShadow: isOn ? "0 0 6px #00ff88" : "none",
-                        }} />
+                  {/* Thumbnail */}
+                  <div style={{ position: "relative", aspectRatio: "16/9", background: "#0f0f0f", overflow: "hidden" }}>
+                    {video.thumbnail_url ? (
+                      <img src={video.thumbnail_url} alt={video.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="48" height="48" fill="none" stroke="#333" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       </div>
-                      <div>
-                        <h3 style={{ fontSize: "15px", fontWeight: 700, color: isOn ? agent.color : "#888899", margin: 0, letterSpacing: "0.04em" }}>
-                          {agent.name}
-                        </h3>
-                        <p style={{ fontSize: "10px", color: "#444466", textTransform: "uppercase", letterSpacing: "0.08em", margin: "2px 0 0" }}>
-                          {agent.type}
-                        </p>
+                    )}
+                    {/* Play button */}
+                    <div style={{
+                      position: "absolute", inset: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: "rgba(0,0,0,0.3)",
+                      opacity: 0, transition: "opacity 0.2s",
+                    }}
+                      className="play-overlay"
+                    >
+                      <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#cc0000", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 24px rgba(204,0,0,0.5)" }}>
+                        <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                       </div>
                     </div>
-
-                    {/* Toggle */}
-                    <button
-                      onClick={() => toggleAgent(agent.id)}
-                      style={{
-                        width: "44px", height: "24px", borderRadius: "12px",
-                        background: isOn ? agent.color : "rgba(255,255,255,0.08)",
-                        border: "none", cursor: "pointer", position: "relative",
-                        transition: "background 0.3s",
-                        flexShrink: 0,
-                      }}
-                      aria-label={`Toggle ${agent.name}`}
-                    >
-                      <div style={{
-                        position: "absolute", top: "3px",
-                        left: isOn ? "23px" : "3px",
-                        width: "18px", height: "18px", borderRadius: "50%",
-                        background: "#ffffff",
-                        transition: "left 0.2s",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
-                      }} />
-                    </button>
+                    {video.duration && (
+                      <span style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.8)", color: "#ccc", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 3 }}>{video.duration}</span>
+                    )}
                   </div>
-
-                  <p style={{ fontSize: "12px", color: "#555577", marginBottom: "14px", lineHeight: 1.5 }}>
-                    {agent.desc}
-                  </p>
-
-                  <a
-                    href="/agents"
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: "6px",
-                      fontSize: "11px", fontWeight: 600, color: agent.color,
-                      textDecoration: "none",
-                      background: `${agent.color}0d`,
-                      border: `1px solid ${agent.color}33`,
-                      borderRadius: "8px", padding: "6px 12px",
-                    }}
-                  >
-                    Configure →
-                  </a>
+                  {/* Info */}
+                  <div style={{ padding: "12px 14px" }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#e5e5e5", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{video.title}</div>
+                    <div style={{ fontSize: 11, color: "#444" }}>{new Date(video.created_at).toLocaleDateString()}</div>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div>
-          <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#ffffff", marginBottom: "20px" }}>
-            Quick Actions
-          </h2>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            {QUICK_ACTIONS.map((action) => (
-              <a
-                key={action.label}
-                href={action.href}
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: "8px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: `1px solid ${action.color}44`,
-                  borderRadius: "12px", padding: "14px 22px",
-                  color: action.color, fontWeight: 600, fontSize: "14px",
-                  textDecoration: "none",
-                  transition: "all 0.2s",
-                }}
-              >
-                <span style={{ fontSize: "18px" }}>{action.emoji}</span>
-                {action.label}
-              </a>
+              </Link>
             ))}
           </div>
-        </div>
+        )}
       </div>
 
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(0.85); }
-        }
+        a:hover .play-overlay { opacity: 1 !important; }
       `}</style>
     </div>
   );

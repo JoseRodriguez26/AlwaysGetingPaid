@@ -1,14 +1,11 @@
 import { createClient } from "@/lib/supabase-server";
-import VideoPlayer from "@/components/VideoPlayer";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import PurchaseSection from "./PurchaseSection";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
   if (!UUID_REGEX.test(id)) notFound();
 
   const supabase = await createClient();
@@ -22,80 +19,83 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
 
   if (!video) notFound();
 
-  // Check if current user has purchased this video
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  let hasPurchased = false;
+  // Check auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/sign-in");
 
-  if (user) {
-    const { data: purchase } = await supabase
-      .from("purchases")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("video_id", video.id)
-      .eq("status", "approved")
-      .single();
-    hasPurchased = !!purchase;
-  }
+  // Check subscription
+  const { data: sub } = await supabase
+    .from("user_subscriptions")
+    .select("plan")
+    .eq("user_id", user.id)
+    .single();
+
+  const isSubscribed = !!(sub && sub.plan && sub.plan !== "free");
+  if (!isSubscribed) redirect("/dashboard");
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Video Player */}
-      <div className="rounded-2xl overflow-hidden border border-border">
-        <VideoPlayer
-          src={hasPurchased ? video.full_video_url : video.preview_url}
-          poster={video.thumbnail_url}
-        />
-      </div>
+    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#e5e5e5", padding: "80px 20px 60px" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
 
-      <div className="mt-8 space-y-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            {!hasPurchased && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-gold/10 text-gold border border-gold/20">
-                Preview
-              </span>
-            )}
-            {video.duration && (
-              <span className="text-xs text-gray-500">{video.duration}</span>
-            )}
-          </div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold text-white">
-            {video.title}
-          </h1>
+        {/* Back */}
+        <Link href="/dashboard" style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          color: "#444", fontSize: 13, textDecoration: "none", marginBottom: 24,
+          transition: "color 0.15s",
+        }}>
+          ← Back to all content
+        </Link>
+
+        {/* Video player */}
+        <div style={{
+          width: "100%", aspectRatio: "16/9",
+          background: "#000", borderRadius: 8, overflow: "hidden",
+          border: "1px solid #1a1a1a", marginBottom: 24,
+          boxShadow: "0 0 40px rgba(204,0,0,0.1)",
+        }}>
+          <video
+            controls
+            playsInline
+            poster={video.thumbnail_url || undefined}
+            style={{ width: "100%", height: "100%", display: "block" }}
+            controlsList="nodownload"
+            onContextMenu={() => false}
+          >
+            <source src={video.full_video_url} type="video/mp4" />
+            Your browser does not support video playback.
+          </video>
         </div>
 
-        {video.description && (
-          <p className="text-gray-400 leading-relaxed">{video.description}</p>
-        )}
-
-        {hasPurchased ? (
-          <div className="card border-green-500/20 bg-green-500/[0.03]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-green-400 font-semibold">You own this video</p>
-                <p className="text-sm text-gray-500">Enjoy the full version above</p>
-              </div>
+        {/* Info */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <span style={{
+                fontSize: 10, fontWeight: 800, color: "#cc0000",
+                border: "1px solid rgba(204,0,0,0.4)", padding: "3px 8px",
+                borderRadius: 3, textTransform: "uppercase", letterSpacing: "0.1em",
+              }}>Exclusive</span>
+              {video.duration && (
+                <span style={{ fontSize: 12, color: "#444" }}>{video.duration}</span>
+              )}
             </div>
+            <h1 style={{ fontSize: "clamp(1.3rem, 3vw, 2rem)", fontWeight: 900, color: "#fff", margin: "0 0 10px", lineHeight: 1.2 }}>
+              {video.title}
+            </h1>
+            {video.description && (
+              <p style={{ color: "#555", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{video.description}</p>
+            )}
           </div>
-        ) : (
-          <PurchaseSection video={video} isLoggedIn={!!user} />
-        )}
-      </div>
 
-      <div className="mt-10">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to all videos
-        </Link>
+          <div style={{
+            padding: "10px 16px", borderRadius: 6,
+            background: "rgba(0,180,80,0.08)", border: "1px solid rgba(0,180,80,0.25)",
+            color: "#4ade80", fontSize: 13, fontWeight: 600, flexShrink: 0,
+          }}>
+            ✓ Full Access
+          </div>
+        </div>
+
       </div>
     </div>
   );
