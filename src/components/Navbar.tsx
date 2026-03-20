@@ -7,7 +7,6 @@ import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -21,66 +20,60 @@ export default function Navbar() {
   return (
     <nav style={{
       position: "fixed", top: 0, width: "100%", zIndex: 50,
-      background: "rgba(5,5,5,0.85)", backdropFilter: "blur(12px)",
-      borderBottom: "1px solid rgba(255,255,255,0.06)",
+      background: "#0a0a0a",
+      borderBottom: "1px solid #1a1a1a",
     }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 20px", height: "64px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{
+        maxWidth: "1200px", margin: "0 auto", padding: "0 20px",
+        height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
 
         {/* Logo */}
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "20px", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.02em" }}>
-            Caliente<span style={{ color: "#e4b84d" }}>Hub</span>
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <span style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.03em" }}>
+            Caliente<span style={{ color: "#cc0000" }}>Hub</span>
           </span>
         </Link>
 
-        {/* Desktop links */}
+        {/* Right side */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {user ? (
             <>
-              <Link href="/dashboard" style={{ padding: "8px 16px", color: "#aaaaaa", fontSize: "14px", textDecoration: "none", borderRadius: "8px" }}>
+              <Link href="/dashboard" style={{
+                padding: "7px 16px", color: "#888888", fontSize: "13px",
+                textDecoration: "none", borderRadius: "4px", fontWeight: 500,
+              }}>
                 My Content
               </Link>
               <form action="/auth/signout" method="post">
-                <button style={{ padding: "8px 16px", color: "#666655", fontSize: "14px", background: "none", border: "none", cursor: "pointer", borderRadius: "8px" }}>
+                <button style={{
+                  padding: "7px 16px", color: "#555555", fontSize: "13px",
+                  background: "none", border: "none", cursor: "pointer", borderRadius: "4px",
+                }}>
                   Sign Out
                 </button>
               </form>
             </>
           ) : (
             <>
-              <Link href="/sign-in" style={{ padding: "8px 16px", color: "#aaaaaa", fontSize: "14px", textDecoration: "none", borderRadius: "8px" }}>
+              <Link href="/sign-in" style={{
+                padding: "7px 16px", color: "#888888", fontSize: "13px",
+                textDecoration: "none", borderRadius: "4px",
+              }}>
                 Sign In
               </Link>
               <Link href="/sign-up" style={{
-                padding: "8px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: 700,
-                background: "linear-gradient(135deg, #f0d078, #e4b84d)",
-                color: "#050505", textDecoration: "none",
+                padding: "8px 20px", borderRadius: "4px", fontSize: "13px", fontWeight: 700,
+                background: "#cc0000", color: "#ffffff", textDecoration: "none",
+                textTransform: "uppercase", letterSpacing: "0.06em",
+                boxShadow: "0 0 16px rgba(204,0,0,0.3)",
               }}>
                 Join Now
               </Link>
             </>
           )}
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          style={{ display: "none", background: "none", border: "none", color: "#aaaaaa", cursor: "pointer", padding: "8px" }}
-          className="mobile-menu-btn"
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {menuOpen
-              ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
-          </svg>
-        </button>
       </div>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .mobile-menu-btn { display: block !important; }
-        }
-      `}</style>
     </nav>
   );
 }
