@@ -30,7 +30,7 @@ export default function AdminPage() {
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
-      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "jaylasttt10@gmail.com";
       if (data.user && data.user.email === adminEmail) {
         setAuthorized(true);
         loadVideos();

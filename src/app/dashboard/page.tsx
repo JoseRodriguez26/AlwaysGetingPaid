@@ -64,10 +64,11 @@ export default function DashboardPage() {
         .eq("user_id", data.user.id)
         .single();
 
-      const isActive = !!(sub && sub.plan && sub.plan !== "free");
+      const isAdmin = data.user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+      const isActive = isAdmin || !!(sub && sub.plan && sub.plan !== "free");
       setSubscribed(isActive);
 
-      // Load videos if subscribed
+      // Load videos if subscribed or admin
       if (isActive) {
         const res = await fetch("/api/videos");
         const json = await res.json();
